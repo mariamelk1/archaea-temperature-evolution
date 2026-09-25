@@ -1,0 +1,42 @@
+#NEXUS
+
+BEGIN DATA;
+DIMENSIONS NTAX=33 NCHAR=2;
+FORMAT DATATYPE=CONTINUOUS MISSING=?;
+CHARSTATELABELS 1 Temp, 2 GC;
+MATRIX
+Aeropyrum_pernix	90.0000	0.859688
+Archaeoglobus_fulgidus	85.0000	0.817474
+Caldivirga_maquilingensis	85.0000	0.824862
+Candidatus_korarchaeum	85.0000	0.822019
+Cenarchaeum_symbiosum	10.0000	0.658509
+Desulfurococcus_kamchatkensis	82.0000	0.841023
+Haloarcula_marismortui	37.0000	0.691021
+Halobacterium_salinarium	37.0000	0.704900
+Halorubrum_lacusprofundi	37.0000	0.705292
+Ignicoccus_hospitalis	90.0000	0.852487
+Metallosphaera_sedula	65.0000	0.782222
+Methanobrevibacter_smithii	37.0000	0.656606
+Methanocaldococcus_jannaschii	85.0000	0.816909
+Methanococcoides_burtonii	21.5000	0.662590
+Methanococcus_maripaludis	37.0000	0.710072
+Methanococcus_voltae	35.0000	0.695554
+Methanocorpusculum_labreanum	37.0000	0.643135
+Methanopyrus_kandleri	98.0000	0.868816
+Methanosaeta_thermophila	61.0000	0.738453
+Methanosarcina_barkeri	33.5000	0.687048
+Methanospirillum_hungatei	37.0000	0.679644
+Methanothermobacter_thermautotrophicus	65.0000	0.720000
+Nanoarchaeum_equitans	90.0000	0.834928
+Nitrosopumilus_maritimus	28.0000	0.653169
+Picrophilus_torridus	55.0000	0.690808
+Pyrobaculum_arsenaticum	95.0000	0.847496
+Pyrococcus_abyssi	98.0000	0.843246
+Staphylothermus_marinus	87.5000	0.848805
+Sulfolobus_acidocaldarius	87.0000	0.807906
+Thermococcus_kodakarensis	95.0000	0.833148
+Thermofilum_pendens	88.0000	0.827394
+Thermoplasma_volcanium	60.0000	0.686492
+Thermoproteus_neutrophilus	85.0000	0.846411
+;
+END;
