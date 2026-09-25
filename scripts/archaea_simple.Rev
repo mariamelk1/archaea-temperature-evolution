@@ -1,0 +1,159 @@
+################################################################
+# Modeling correlated evolution of rRNA GC content and OGT
+# in Archaea (based on Groussin & Gouy 2011)
+################################################################
+
+# --------------------------------------------------
+# Data
+# --------------------------------------------------
+
+data <- readDiscreteCharacterData("data/archaea.nex")
+
+n_species  <- data.ntaxa()
+n_branches <- 2 * n_species - 2
+n_nodes    <- 2 * n_species - 1
+
+taxa <- data.taxa()
+
+# --------------------------------------------------
+# Fixed tree (topology AND branch lengths taken as given)
+# --------------------------------------------------
+
+tree <- readTrees("data/archaea.tree")[1]
+
+# --------------------------------------------------
+# Combined temperature + GC data (tips only)
+# column 1 = Temp (degrees C), column 2 = GC (%)
+# --------------------------------------------------
+
+tg_data <- readContinuousCharacterData("data/archaea_temp_gc.nex")
+
+# --------------------------------------------------
+# T92 substitution model
+# --------------------------------------------------
+
+kappa ~ dnExponential(0.1)
+
+moves = VectorMoves()
+moves.append(mvScale(kappa, weight=1.0))
+
+# --------------------------------------------------
+# Brownian motion on log-temperature
+# --------------------------------------------------
+
+sigma_T ~ dnExponential(1.0)
+moves.append(mvScale(sigma_T, weight=1.0))
+
+# --------------------------------------------------
+# Regression of GC on temperature change (correlated evolution)
+# --------------------------------------------------
+
+beta ~ dnNormal(0.0, 10.0)
+moves.append(mvSlide(beta, weight=1.0))
+
+sigma_GC ~ dnExponential(1.0)
+moves.append(mvScale(sigma_GC, weight=1.0))
+
+# --------------------------------------------------
+# Root values
+# --------------------------------------------------
+
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=10)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+
+# --------------------------------------------------
+# Recursion from root to tips
+# --------------------------------------------------
+
+for (i in (n_nodes-1):1) {
+
+    # log-temperature: pure Brownian motion
+    nodelogT[i] ~ dnNormal(
+        mean = nodelogT[tree.parent(i)],
+        sd   = sigma_T * sqrt(tree.branchLength(i))
+    )
+
+    # GC content: Brownian motion + linear regression on the
+    # temperature change along the same branch
+    nodeLogitGC[i] ~ dnNormal(
+        mean = nodeLogitGC[tree.parent(i)]
+               + beta * (nodelogT[i] - nodelogT[tree.parent(i)]),
+        sd = sigma_GC * sqrt(tree.branchLength(i))
+    )
+
+    nodeGC[i] := Probability(1 / (1 + exp(-nodeLogitGC[i])))
+
+    if (i > n_species) {
+        moves.append(mvSlide(nodelogT[i], weight=1.0))
+        moves.append(mvSlide(nodeLogitGC[i], weight=1.0, delta=0.1))
+    }
+}
+
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+
+# --------------------------------------------------
+# Clamp observed temperature AND GC content at the tips
+# --------------------------------------------------
+
+for (i in 1:n_species) {
+
+    taxon_name = tree.nodeName(i)
+    taxon_index = tg_data.taxonIndex(taxon_name)
+
+    obs_temp = tg_data.get(taxon_index, 1)
+    obs_gc   = tg_data.get(taxon_index, 2)
+
+    nodelogT[i].clamp( ln(obs_temp) )
+    nodeLogitGC[i].clamp( logit(obs_gc) )
+}
+
+# --------------------------------------------------
+# Branch-specific substitution matrices
+# --------------------------------------------------
+
+for (i in 1:n_branches) {
+    branchGC[i] := Probability(0.5 * (nodeGC[tree.parent(i)] + nodeGC[i]))
+    Q[i] := fnT92(kappa=kappa, gc=branchGC[i])
+}
+
+# --------------------------------------------------
+# Root frequencies (derived from the root's GC content)
+# order: A, C, G, T
+# --------------------------------------------------
+
+freqA := Probability((1 - nodeGC[n_nodes]) / 2)
+freqC := Probability(nodeGC[n_nodes] / 2)
+freqG := Probability(nodeGC[n_nodes] / 2)
+freqT := Probability((1 - nodeGC[n_nodes]) / 2)
+rootFreq := simplex(freqA, freqC, freqG, freqT)
+
+# --------------------------------------------------
+# Sequence evolution
+# --------------------------------------------------
+
+seq ~ dnPhyloCTMC(tree=tree, Q=Q, type="DNA", rootFrequencies=rootFreq)
+seq.clamp(data)
+
+# --------------------------------------------------
+# Model
+# --------------------------------------------------
+
+my_model = model(tree)
+
+# --------------------------------------------------
+# Monitors
+# --------------------------------------------------
+
+monitors = VectorMonitors()
+monitors.append(mnModel(filename="analyses/archaea_simple.log", printgen=10, separator=TAB))
+monitors.append(mnScreen(printgen=100, sigma_T, sigma_GC, beta, kappa))
+
+# --------------------------------------------------
+# MCMC
+# --------------------------------------------------
+
+analysis = mcmc(my_model, monitors, moves)
+analysis.run(generations=100000)
