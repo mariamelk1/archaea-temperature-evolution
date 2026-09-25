@@ -1,0 +1,6 @@
+quit()
+source("script/revbayes/archaea_simple.Rev")
+source("scripts/revbayes/archaea_simple.Rev")
+ls
+quit()+
+j
