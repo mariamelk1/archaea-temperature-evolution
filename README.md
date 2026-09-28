@@ -2,17 +2,29 @@
 
 ## Biological background
 
-Archaea are microorganisms capable of living across a very wide range of environmental temperatures, including extremely hot environments. Environmental temperature can influence molecular evolution and can leave a detectable signal in the molecular composition of organisms.
+Archaea are microorganisms capable of living across a very wide range of environmental temperatures, including extremely hot environments. Environmental temperature can influence molecular evolution and leave a detectable signal in the molecular composition of organisms.
 
-In particular, the nucleotide composition of ribosomal RNA (rRNA) in Archaea is strongly influenced by temperature. The GC content of rRNA can therefore provide information about adaptation to environmental temperature. Organisms adapted to high temperatures tend to show higher GC content in rRNA than organisms adapted to lower temperatures.
+In particular, the nucleotide composition of ribosomal RNA (rRNA) in Archaea is strongly associated with temperature. Archaeal species adapted to higher temperatures tend to have a higher GC content in their rRNA than species adapted to lower temperatures.
 
-This project is based on the study by Groussin and Gouy (2011), *Adaptation to Environmental Temperature Is a Major Determinant of Molecular Evolutionary Rates in Archaea*. The authors investigated the evolution of optimal growth temperature (OGT) across the archaeal domain and its relationship with molecular evolutionary rates. They used archaeal phylogenies and models of molecular evolution to reconstruct ancestral molecular compositions and optimal growth temperatures. Their results suggest that the last archaeal common ancestor was hyperthermophilic and that environmental temperature has played an important role in the molecular evolution of Archaea.
+This project is based on the study by Groussin and Gouy (2011), *Adaptation to Environmental Temperature Is a Major Determinant of Molecular Evolutionary Rates in Archaea*. The authors investigated the evolution of optimal growth temperature (OGT) across the archaeal domain and its relationship with molecular evolution. Their results support an important role of environmental temperature in archaeal molecular evolution and suggest that the common ancestor of the studied Archaea was adapted to high temperatures.
 
-## Project objective
+## Project objectives
 
-The objective of this project is to investigate the relationship between optimal growth temperature (OGT) and molecular evolution in Archaea.
+The general objective of this project is to investigate the evolutionary relationship between optimal growth temperature (OGT) and rRNA GC content in Archaea while taking their phylogenetic history into account.
 
-As a first step, we examine whether the optimal growth temperature of extant archaeal species is associated with the GC content of their rRNA sequences. We first explore this relationship without considering the evolutionary relationships between species. In a second step, phylogenetic information will be incorporated to determine whether the observed relationship remains when the shared evolutionary history of the species is taken into account.
+The project has two main objectives.
+
+1. **Test whether changes in optimal growth temperature and rRNA GC content are associated during archaeal evolution.**
+
+   We use a phylogenetic model in RevBayes in which temperature and GC content evolve along the branches of the archaeal phylogeny. The parameter `beta` describes the association between evolutionary changes in temperature and changes in GC content.
+
+   A positive value of `beta` indicates that increases in temperature tend to be associated with increases in GC content, whereas a value close to zero indicates little evidence for correlated evolutionary change.
+
+2. **Reconstruct ancestral optimal growth temperatures, particularly the temperature at the root of the archaeal phylogeny.**
+
+   Using the observed temperatures of extant species and the phylogenetic tree, the model estimates ancestral temperatures at internal nodes. Of particular interest is the posterior estimate of the root temperature, which allows us to investigate whether the common ancestor represented by our phylogeny was adapted to high temperatures.
+
+Thus, the project moves from an observed correlation among present-day species to a phylogenetic model that investigates how temperature and GC content may have evolved together and reconstructs ancestral environmental adaptations.
 
 ## Data
 
@@ -22,8 +34,9 @@ The dataset contains 33 archaeal species.
 - `data/archaea.temp`: optimal growth temperature (OGT) for each species.
 - `data/archaea.tree`: phylogenetic tree describing the evolutionary relationships among the archaeal species.
 - `data/archaea_traits.nex`: continuous dataset containing GC content and OGT for each species.
+- `data/archaea_temp_gc.nex`: continuous data used in the RevBayes phylogenetic model, containing temperature and GC content for the terminal species.
 
-The 1801 nucleotide positions in the rRNA alignment correspond to double-stranded regions of the rRNA, which are particularly informative for studying the relationship between GC composition and environmental temperature.
+The 1801 nucleotide positions in the rRNA alignment correspond to double-stranded regions of the rRNA, which are particularly informative for studying the relationship between nucleotide composition and environmental temperature.
 
 ## Exploratory analysis: relationship between GC content and temperature
 
@@ -37,9 +50,33 @@ A strong positive association was observed between optimal growth temperature an
 
 The linear regression explained approximately 90% of the observed variation in GC content (R² = 0.900). Therefore, species adapted to higher optimal growth temperatures tend to have higher GC content in their rRNA sequences.
 
-However, this analysis treats the 33 species as statistically independent observations. Because species share evolutionary history, this assumption may not be valid. Closely related species may have similar GC contents and optimal growth temperatures because of their common ancestry rather than because these traits evolved independently.
+However, this exploratory analysis treats the 33 species as statistically independent observations. This assumption is problematic because species share evolutionary history. Closely related species may have similar temperatures and GC contents partly because they inherited characteristics from common ancestors.
 
-The next step of the analysis will therefore incorporate the archaeal phylogeny to determine whether the relationship between optimal growth temperature and GC content remains after accounting for shared evolutionary history.
+## Phylogenetic analysis
+
+To account for shared evolutionary history, a phylogenetic model is implemented in RevBayes.
+
+The model describes the evolution of optimal growth temperature along the phylogenetic tree using a Brownian-motion process on log-transformed temperature.
+
+GC content is also allowed to evolve along the tree. Its evolutionary change is related to the change in temperature through the parameter `beta`.
+
+The relationship can be summarized conceptually as:
+
+change in GC content ~ beta × change in temperature + evolutionary variation
+
+More precisely, the model operates on log-transformed temperature and logit-transformed GC content.
+
+The main parameter of interest is therefore `beta`.
+
+- `beta > 0`: increases in temperature tend to be associated with increases in GC content.
+- `beta ≈ 0`: little evidence for an evolutionary association.
+- `beta < 0`: increases in temperature tend to be associated with decreases in GC content.
+
+The model also reconstructs ancestral values of temperature and GC content at the internal nodes of the phylogeny.
+
+One of the main quantities of interest is the reconstructed temperature at the root of the tree. This estimate can be compared with the hypothesis proposed by Groussin and Gouy (2011) that the ancestral archaeal lineage was adapted to high temperatures.
+
+Posterior distributions obtained from the MCMC analysis will be used to estimate `beta`, ancestral temperatures, and their associated uncertainty.
 
 ## Reference
 
