@@ -1,286 +1,181 @@
-# Temperature and Molecular Evolution in Archaea
+# Température et évolution moléculaire chez les archées
 
-## Biological background
+## 1. Introduction
 
-Archaea are microorganisms capable of living across a very wide range of environmental temperatures, from mesophilic environments to extremely hot habitats approaching 100°C.
+### 1.1 Contexte
 
-Environmental temperature can leave a detectable signal in molecular composition. In particular, the nucleotide composition of ribosomal RNA (rRNA) in Archaea is strongly associated with optimal growth temperature (OGT). Archaeal species adapted to high temperatures tend to have higher GC content in their rRNA than species adapted to lower temperatures.
+Les archées sont des micro-organismes qui vivent à des températures très variées, des milieux tempérés jusqu'à des sources chaudes proches de 100 °C.
 
-This relationship makes rRNA GC content a useful **molecular thermometer**: if GC content and temperature evolve in a predictable way, molecular information may help reconstruct the environmental preferences of ancestral organisms that cannot be observed directly.
+La température laisse une trace dans leurs molécules. L'ARN ribosomique (ARNr) contient de nombreuses régions en double brin, stabilisées par l'appariement des bases. Les paires G-C, liées par trois liaisons hydrogène, sont plus stables que les paires A-U, qui n'en ont que deux. Les espèces des milieux chauds ont donc un ARNr plus riche en GC.
 
-This project is based on the study by Groussin and Gouy (2011), *Adaptation to Environmental Temperature Is a Major Determinant of Molecular Evolutionary Rates in Archaea*.
+Le taux de GC de l'ARNr peut ainsi servir de **thermomètre moléculaire**. C'est particulièrement utile pour les ancêtres : on ne peut pas mesurer leur température, mais on peut reconstruire leurs séquences.
 
-The authors studied the evolution of temperature adaptation across the archaeal domain using phylogenetic and molecular-evolution models. They reconstructed ancestral molecular compositions from rRNA and protein sequences and then used relationships observed between molecular composition and temperature in extant species to infer ancestral optimal growth temperatures.
+### 1.2 Objectifs
 
-Their analyses suggested that the common ancestor of the studied Archaea was adapted to high temperatures, supporting a hyperthermophilic origin for the archaeal lineage.
+Ce projet a deux objectifs, qui s'enchaînent :
 
-## Research question
+1. **Estimer la corrélation entre le taux de GC et la température le long de l'arbre des archées.**
+   Quand la température optimale de croissance (OGT) d'une lignée augmente au cours de l'évolution, son taux de GC augmente-t-il aussi ? Cette corrélation est mesurée par un paramètre du modèle, `beta`.
 
-The approach used by Groussin and Gouy involves two conceptually separate steps:
+2. **Utiliser cette corrélation pour estimer la température des ancêtres, en particulier celle de la racine.**
+   La racine de l'arbre représente l'ancêtre commun des espèces étudiées : vivait-il dans un milieu chaud ?
 
-1. ancestral molecular compositions are reconstructed;
-2. reconstructed molecular values are then related to temperature using a regression calibrated on extant species.
+> **Question de recherche :** peut-on estimer, dans un seul modèle phylogénétique bayésien, à la fois la corrélation évolutive entre GC et température et la température des ancêtres ?
 
-This means that ancestral molecular reconstruction and temperature inference are not estimated simultaneously within the same probabilistic model.
+Cette question a déjà été abordée par Groussin et Gouy (2011) avec une autre méthode. Nous présentons d'abord leur travail et ses limites, puis la façon dont notre modèle y répond.
 
-In this project, we instead investigate whether rRNA GC content and optimal growth temperature can be modeled jointly along the archaeal phylogeny.
+## 2. L'étude de référence : Groussin et Gouy (2011)
 
-The main research question is:
+### 2.1 Leur méthode : deux étapes séparées
 
-> **Can the correlated evolution of rRNA GC content and optimal growth temperature be modeled within a single Bayesian phylogenetic framework in order to estimate both their evolutionary association and ancestral temperatures?**
+Les auteurs ont étudié 35 espèces d'archées dont le génome est complètement séquencé, à partir de deux sources d'information : l'ARNr et 72 familles de protéines.
 
-## Project objectives
+1. **Reconstruire la composition des ancêtres.** Sur un arbre phylogénétique fixé, ils estiment à chaque nœud ancestral le taux de GC de l'ARNr et la composition en acides aminés des protéines. Ils utilisent des modèles d'évolution dits « non homogènes », où la composition peut changer d'une branche à l'autre.
+2. **Traduire ces compositions en températures.** Chez les espèces actuelles, ils mesurent la relation entre composition et OGT (r = 0,95 pour le GC de l'ARNr, r = 0,84 pour un indice de composition des protéines). Cette droite sert de thermomètre : ils y placent les compositions ancestrales pour en déduire la température des ancêtres.
 
-The project has two main objectives.
+Pour vérifier que ces corrélations ne viennent pas simplement de la parenté entre espèces, ils les recalculent avec des contrastes phylogénétiquement indépendants (PIC), qui confirment le lien.
 
-### 1. Estimate the evolutionary association between GC content and temperature
+### 2.2 Leurs résultats
 
-We test whether changes in optimal growth temperature and changes in rRNA GC content tend to occur together along the branches of the archaeal phylogeny.
+- L'ancêtre commun des archées était **hyperthermophile** : environ 90 °C d'après l'ARNr et 82 °C d'après les protéines.
+- Plusieurs lignées, notamment chez les Euryarchées, se sont ensuite adaptées progressivement à des milieux plus froids.
+- Les lignées des milieux tempérés évoluent plus vite (branches plus longues) : la température apparaît comme un déterminant majeur de la vitesse d'évolution moléculaire chez les archées.
 
-A Bayesian phylogenetic model implemented in RevBayes is used to estimate the parameter `beta`, which links evolutionary changes in temperature to evolutionary changes in GC content.
+### 2.3 Les limites de leur approche
 
-A positive value of `beta` indicates that evolutionary increases in temperature tend to be associated with increases in GC content.
+- **L'incertitude se perd entre les deux étapes.** La droite GC-température est utilisée comme si elle était exacte. Les auteurs le reconnaissent : cette incertitude n'est pas prise en compte, et les intervalles réels seraient plus larges.
+- **Le thermomètre traite les espèces comme indépendantes.** Les PIC vérifient la corrélation, mais la droite qui convertit le GC en température est ajustée sur les valeurs brutes des espèces.
+- **La température n'évolue pas dans leur modèle.** Les températures des espèces actuelles servent seulement à calibrer le thermomètre ; elles n'informent pas directement les ancêtres à travers l'arbre.
+- **Les résultats dépendent des données choisies.** Leur estimation pour l'ancêtre commun (de 74 à 89 °C) est nettement plus élevée que celle d'une étude antérieure (Boussau et al., 2008 : de 59 à 73 °C), écart qu'ils attribuent au choix des gènes et à l'incertitude des thermomètres.
 
-### 2. Reconstruct ancestral temperatures
+## 3. Notre approche : un seul modèle
 
-The second objective is to use the joint phylogenetic model to estimate optimal growth temperatures at ancestral nodes of the tree.
+### 3.1 Ce que nous changeons
 
-Particular attention is given to the temperature at the root of the archaeal phylogeny, which provides information about the thermal environment of the common ancestor represented by the tree.
+Nous reprenons la même question avec l'ARNr, mais en remplaçant les deux étapes par un seul modèle bayésien, implémenté dans RevBayes.
 
-## Data
+| Limite de l'approche en deux étapes | Réponse de notre modèle |
+| --- | --- |
+| L'incertitude du thermomètre n'est pas propagée | La corrélation (`beta`), les GC ancestraux et les températures ancestrales sont estimés ensemble : les intervalles de crédibilité intègrent toutes ces incertitudes |
+| Le thermomètre traite les espèces comme indépendantes | La corrélation porte sur les changements le long des branches : la parenté entre espèces fait partie du modèle |
+| La température n'évolue pas le long de l'arbre | La température évolue elle-même le long des branches : les températures actuelles renseignent directement celles des ancêtres |
 
-The current analysis contains 33 archaeal species.
+Notre modèle ne règle pas en revanche la dernière limite : il n'utilise que l'ARNr (voir la section 8).
 
-The `data/` directory contains:
+### 3.2 Comment fonctionne le modèle
 
-- `data/archaea.nex`: rRNA sequence alignment containing 1801 nucleotide sites for the 33 archaeal species.
-- `data/archaea.tree`: phylogenetic tree describing the evolutionary relationships among the 33 archaeal species.
-- `data/archaea_temp_gc.nex`: continuous dataset containing optimal growth temperature (OGT) and rRNA GC content for the terminal species.
-- `data/rna.itgc`: auxiliary dataset containing a transformed measure related to rRNA GC composition for a broader set of 85 taxa. This file is not directly used in the current RevBayes analysis.
+Le modèle décrit ce qui se passe le long de chaque branche de l'arbre :
 
-The 1801 nucleotide positions in the rRNA alignment correspond to double-stranded regions of the rRNA. These regions are particularly informative for studying the relationship between nucleotide composition and environmental temperature.
+- **La température varie un peu, au hasard.** Plus la branche est longue, plus elle peut changer. L'ampleur de ces variations est réglée par `sigma_T`.
+- **Le GC varie aussi, en partie à cause de la température :**
 
-## Exploratory analysis: relationship between GC content and temperature
+  ```
+  changement de GC ≈ beta × changement de température + variation propre au GC
+  ```
 
-As an initial validation step, the relationship between rRNA GC content and optimal growth temperature was examined across the 33 extant archaeal species without accounting for their phylogenetic relationships.
+  La part que la température n'explique pas est réglée par `sigma_GC`.
+- **Le GC de chaque branche oriente l'évolution des séquences.** Sur une branche riche en GC, les substitutions vers G et C sont plus fréquentes. L'alignement d'ARNr apporte donc lui aussi de l'information sur le GC des ancêtres.
 
-Both variables are continuous, so a Pearson correlation was used to evaluate the strength and direction of their linear association. A simple linear regression was also fitted.
+Aux extrémités de l'arbre, la température et le GC des espèces actuelles sont connus. À partir de ces observations et des séquences, le modèle estime `beta` et les valeurs ancestrales, chacune avec son incertitude (distribution a posteriori).
 
-![Relationship between GC content and optimal growth temperature](figures/gc_vs_temperature.png)
+<details>
+<summary><b>Détails techniques du modèle</b></summary>
 
-A very strong positive association was observed between optimal growth temperature and rRNA GC content:
+Pour la branche qui va du nœud parent `pa(i)` au nœud `i`, de longueur `bl(i)`, avec Normale(moyenne, écart-type) :
 
-- Pearson correlation: **r = 0.949**
-- p-value: **p < 2.2 × 10^-16**
-- R² of the linear regression: **0.900**
-- Number of species: **n = 33**
+```
+log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
+logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
+```
 
-Therefore, archaeal species adapted to higher optimal growth temperatures tend to have higher GC content in their rRNA.
+- La température est modélisée en logarithme (elle reste positive) et le GC en logit (il reste entre 0 et 1) : ce sont deux mouvements browniens le long de l'arbre, couplés par `beta`.
+- Le GC d'une branche est la moyenne du GC à ses deux extrémités. Il définit une matrice de substitution T92 propre à la branche, avec un rapport transitions/transversions `kappa` commun à tout l'arbre. Les fréquences des bases à la racine sont déduites du GC de la racine.
+- La vraisemblance de l'alignement est calculée avec `dnPhyloCTMC` sur l'arbre fixé.
+- Lois a priori : `sigma_T` et `sigma_GC` suivent une exponentielle de taux 1 ; `kappa` une exponentielle de taux 0,1 ; `beta` ~ Normale(0, 10) ; log T à la racine ~ Normale(ln 75, 10) ; logit GC à la racine ~ Normale(0, 10).
+- Inférence par MCMC : 100 000 générations, un échantillon toutes les 10 générations.
 
-This result is highly consistent with the strong GC-temperature relationship reported by Groussin and Gouy.
+</details>
 
-However, this exploratory analysis treats the 33 species as statistically independent observations.
+## 4. Données
 
-This assumption is problematic because species share evolutionary history. Closely related species may have similar temperatures and GC contents partly because they inherited similar characteristics from common ancestors.
+L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 
-For this reason, the main analysis explicitly incorporates the archaeal phylogeny.
+| Fichier | Contenu |
+| --- | --- |
+| `data/archaea.nex` | Alignement de l'ARNr : 1 801 positions des régions en double brin, dont la composition est la plus liée à la température |
+| `data/archaea.tree` | Arbre phylogénétique des 33 espèces (topologie et longueurs de branches, considérées comme fixes) |
+| `data/archaea_temp_gc.nex` | Température optimale de croissance (OGT) et taux de GC de l'ARNr de chaque espèce actuelle |
+| `data/rna.itgc` | Fichier auxiliaire (85 taxons), non utilisé dans l'analyse actuelle |
 
-## Joint phylogenetic model
+## 5. Analyses réalisées
 
-The phylogenetic analysis was implemented in **RevBayes**.
+Les analyses ont été menées dans cet ordre :
 
-The model jointly describes the evolution of optimal growth temperature and rRNA GC content along the phylogenetic tree.
+1. **Vérification sans arbre.** Corrélation de Pearson et régression linéaire entre GC et OGT chez les 33 espèces actuelles, pour vérifier que nos données contiennent le signal attendu.
+2. **Modèle complet** (`archaea_simple.Rev`). Tout est estimé : `beta` (objectif 1) et la température de la racine (objectif 2).
+3. **Deux analyses de contrôle**, pour comprendre comment l'information sur le GC atteint la température :
+   - GC de la racine fixé à environ 86 % (`archaea_simpleRoot.Rev`) ;
+   - GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
 
-### Evolution of temperature
+## 6. Résultats
 
-Temperature is modeled using a Brownian-motion process on the logarithm of temperature.
+### 6.1 Objectif 1 : la corrélation entre GC et température
 
-Using log-transformed temperature ensures that reconstructed temperatures remain positive.
+**Sans tenir compte de l'arbre**, la relation est très forte :
 
-For a branch of the tree, the descendant temperature is modeled as a stochastic modification of the ancestral temperature.
+![Relation entre le taux de GC et la température optimale de croissance](figures/gc_vs_temperature.png)
 
-The parameter `sigma_T` controls the amount of evolutionary variation in temperature.
+- Corrélation de Pearson : **r = 0,949** (p < 2,2 × 10⁻¹⁶)
+- R² de la régression : **0,90**
+- Nombre d'espèces : **33**
 
-### Evolution of GC content
+Cette valeur est très proche de celle de Groussin et Gouy (r = 0,95) : nos données reproduisent bien le signal attendu. Mais cette analyse traite les espèces comme indépendantes, alors que des espèces proches se ressemblent en partie par héritage.
 
-GC content is modeled on the logit scale.
+**Le long de l'arbre**, avec le modèle complet, l'intervalle de crédibilité à 95 % de `beta` est **[0,5 ; 2,8]**. Il est entièrement positif : quand la température d'une lignée augmente au cours de l'évolution, son taux de GC tend lui aussi à augmenter.
 
-This transformation ensures that reconstructed GC proportions remain between 0 and 1.
+Les deux résultats ne disent pas la même chose : le r de Pearson décrit une ressemblance entre espèces actuelles, alors que `beta` décrit une association entre les changements des deux caractères au cours de l'évolution, en tenant compte de la parenté.
 
-The evolution of GC content is coupled to temperature through the parameter `beta`.
+### 6.2 Objectif 2 : la température de la racine
 
-Conceptually, the model can be summarized as:
+| Analyse | GC de la racine | `beta` | Température de la racine |
+| --- | --- | --- | ---: |
+| Modèle complet | estimé | estimé | **80,91 °C** |
+| Contrôle 1 | fixé (≈ 86 %) | estimé | **105,61 °C** |
+| Contrôle 2 | fixé (≈ 86 %) | fixé à 0 | **72,15 °C** |
 
-`change in GC ≈ beta × change in temperature + evolutionary variation`
+**Résultat principal.** Avec le modèle complet, l'ancêtre commun est estimé à environ 81 °C, juste au-dessus du seuil de 80 °C qui sépare thermophiles et hyperthermophiles dans l'article. C'est un peu moins que l'estimation de Groussin et Gouy avec l'ARNr (90 °C) et proche de celle obtenue avec les protéines (82 °C) : les deux approches concluent à un ancêtre chaud.
 
-More precisely, the implemented relationship operates on logit-transformed GC content and log-transformed temperature.
+**Contrôles.** Fixer un GC élevé à la racine fait monter sa température à près de 106 °C : l'information sur le GC passe donc bien vers la température. Si l'on supprime en plus le lien (`beta = 0`), le GC ne renseigne plus sur la température, qui n'est plus estimée qu'à partir des températures actuelles : environ 72 °C. `beta` est donc bien le canal par lequel le GC informe la température. Ces contrôles montrent aussi que la reconstruction est sensible à ce que l'on impose à la racine.
 
-The parameter `sigma_GC` controls the residual evolutionary variation in GC content that is not explained by temperature.
+## 7. Conclusion
 
-### Interpretation of beta
+Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation évolutive entre GC et température et la température des ancêtres :
 
-The main parameter used to evaluate the evolutionary association is `beta`.
+1. **Le GC de l'ARNr et la température ont évolué ensemble chez les archées** : `beta` est positif, avec un intervalle de crédibilité à 95 % de [0,5 ; 2,8].
+2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 81 °C, ce qui rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente.
+3. **`beta` est le mécanisme qui relie les deux caractères** : sans lui, le GC n'apporte plus d'information sur la température.
 
-- `beta > 0`: increases in temperature tend to be associated with increases in GC content.
-- `beta ≈ 0`: there is little evidence for an evolutionary association between the two traits.
-- `beta < 0`: increases in temperature tend to be associated with decreases in GC content.
+## 8. Limites et perspectives
 
-This is therefore different from the simple Pearson correlation calculated across present-day species.
+### Limites
 
-The Pearson correlation describes a **static association among extant taxa**, whereas `beta` describes how changes in the two traits are associated **along the evolutionary history represented by the phylogeny**.
+- **Données restreintes.** 33 espèces et un seul signal moléculaire, l'ARNr, alors que Groussin et Gouy utilisaient aussi les protéines.
+- **Un seul lien pour tout l'arbre.** Le modèle suppose la même relation entre GC et température (un seul `beta`) dans toutes les lignées.
+- **Arbre fixé.** L'incertitude sur la topologie et les longueurs de branches n'est pas prise en compte.
+- **Modèle de substitution simplifié.** Le modèle T92 est plus simple que le modèle HKY85 retenu par l'article pour l'ARNr.
+- **Sensibilité à la racine.** L'estimation de 105,61 °C obtenue en fixant le GC de la racine dépasse nettement les valeurs de l'article.
+- **Convergence.** Les paramètres des nœuds profonds peuvent être moins bien échantillonnés par le MCMC ; la convergence et les tailles d'échantillon effectives (ESS) doivent être vérifiées dans Tracer.
 
-### Molecular sequence information
+### Perspectives
 
-The model also incorporates the rRNA nucleotide alignment.
+- Ajouter la composition des protéines comme second thermomètre moléculaire.
+- Permettre à la relation entre GC et température de varier entre les grands groupes d'archées.
+- Tester d'autres topologies pour mesurer la sensibilité des reconstructions à l'arbre.
+- Comparer formellement les modèles avec et sans lien (contrôles 1 et 2) par un facteur de Bayes.
+- Comparer notre reconstruction à une reconstruction en deux étapes, comme celle de l'article, sur les mêmes données.
 
-Branch-specific T92 substitution matrices are constructed using the reconstructed GC content along each branch.
+## Références
 
-Consequently, the ancestral GC values are constrained not only by the observed GC values of extant species, but also by the nucleotide substitutions observed in the rRNA alignment.
+Groussin M., Gouy M. (2011). Adaptation to Environmental Temperature Is a Major Determinant of Molecular Evolutionary Rates in Archaea. *Molecular Biology and Evolution*, 28(9), 2661-2674. https://doi.org/10.1093/molbev/msr098
 
-Temperature, GC content, phylogenetic history and sequence evolution are therefore connected within the same probabilistic model.
-
-## Results
-
-### 1. Exploratory GC-temperature relationship
-
-The non-phylogenetic analysis showed a very strong relationship between GC content and optimal growth temperature:
-
-**Pearson r = 0.949**
-
-This value is very close to the strong correlation reported by Groussin and Gouy and provides an initial validation that the dataset reproduces the expected biological signal.
-
-### 2. Evolutionary association between GC and temperature
-
-The RevBayes analysis estimated the posterior distribution of `beta`.
-
-The 95% credible interval obtained for `beta` was:
-
-**beta: [0.5, 2.8]**
-
-The entire interval is positive.
-
-This result supports a positive evolutionary association between optimal growth temperature and rRNA GC content in the model.
-
-In other words, branches associated with evolutionary increases in temperature also tend to be associated with increases in rRNA GC content.
-
-This result is consistent with the biological relationship observed among present-day archaeal species, while additionally accounting for their shared phylogenetic history.
-
-### 3. Reconstruction of the ancestral root temperature
-
-The model was also used to reconstruct the optimal growth temperature at the root of the phylogeny.
-
-Three analyses were compared in order to examine how GC information and the parameter `beta` influence the reconstruction.
-
-| Scenario | Estimated root temperature |
-| --- | ---: |
-| Root GC unknown, `beta` active | **80.91°C** |
-| Root GC known (~86%), `beta` active | **105.61°C** |
-| Root GC known, `beta = 0` | **72.15°C** |
-
-### Scenario 1: root GC unknown and beta active
-
-When the root GC value is not fixed and both temperature and GC are reconstructed jointly, the estimated root temperature is:
-
-**80.91°C**
-
-This reconstruction is consistent with a thermophilic to hyperthermophilic archaeal ancestor and is close to the ancestral temperature range proposed by Groussin and Gouy.
-
-This indicates that the joint model can recover an ancestral thermal signal compatible with the conclusions of the reference study.
-
-### Scenario 2: root GC known and beta active
-
-When information about the root GC content is introduced while keeping the evolutionary coupling between GC and temperature active, the estimated root temperature increases to:
-
-**105.61°C**
-
-This result demonstrates that information about ancestral GC content can propagate through the coupling parameter `beta` and influence the reconstructed ancestral temperature.
-
-However, this estimate is higher than the ancestral temperature estimates reported in the reference study and should therefore be interpreted cautiously.
-
-The difference may reflect the assumptions of our model, particularly the use of a single linear relationship between changes in temperature and GC across the entire phylogeny.
-
-### Scenario 3: root GC known and beta = 0
-
-As a control analysis, `beta` was fixed to zero.
-
-In this model, GC evolution and temperature evolution are no longer coupled.
-
-The estimated root temperature was:
-
-**72.15°C**
-
-The comparison between this analysis and the previous scenario is particularly informative.
-
-When `beta` is active, information about root GC content can influence the reconstructed root temperature. When `beta = 0`, this channel of information between the two traits is removed.
-
-This control therefore confirms that `beta` is the parameter responsible for coupling GC and temperature within the model.
-
-It does not demonstrate biological causality, but it shows how information is transferred between the two evolutionary processes under the assumptions of the model.
-
-## Discussion
-
-Two different levels of association were detected.
-
-First, the exploratory analysis showed a very strong relationship between temperature and GC content across extant species (`r = 0.949`).
-
-Second, the phylogenetic model estimated a positive posterior distribution for `beta`, suggesting that the relationship is also detectable when the evolutionary history of the species is explicitly considered.
-
-The reconstruction of the root temperature provides an additional test of the model.
-
-With root GC left unknown, the estimated ancestral temperature of **80.91°C** is consistent with the hypothesis of a high-temperature archaeal ancestor proposed by Groussin and Gouy.
-
-The control analyses also illustrate an important property of the joint model: information about GC content can contribute to temperature reconstruction only when the two evolutionary processes are connected through `beta`.
-
-This differs from a two-step procedure in which ancestral GC content is reconstructed first and then converted into a temperature estimate using a separate regression.
-
-In the present model, the evolutionary relationship and the ancestral states are estimated jointly within a Bayesian framework.
-
-## Conclusion
-
-The results support a positive evolutionary association between rRNA GC content and optimal growth temperature in Archaea.
-
-The project therefore provides two main results:
-
-1. **GC content and temperature show evidence of associated evolutionary change along the archaeal phylogeny.**
-
-   The posterior distribution of `beta` is positive, with a 95% credible interval of **[0.5, 2.8]**.
-
-2. **The phylogenetic model allows ancestral temperatures to be reconstructed.**
-
-   In the analysis where root GC was not fixed, the estimated root temperature was **80.91°C**, consistent with a high-temperature ancestral archaeal lineage.
-
-The comparison of the three root-temperature analyses further shows that the parameter `beta` acts as the coupling mechanism through which information about GC content can influence temperature reconstruction.
-
-Overall, the model provides a joint Bayesian framework for studying the evolutionary relationship between molecular composition and environmental temperature while simultaneously reconstructing ancestral states.
-
-## Limitations
-
-Several limitations should be considered when interpreting the results.
-
-First, the dataset contains 33 archaeal species and only uses the rRNA molecular signal. Groussin and Gouy also investigated protein composition, providing an additional independent molecular thermometer.
-
-Second, the model assumes a single global relationship between temperature and GC content through one parameter, `beta`, across the entire phylogeny.
-
-The real relationship may be more complex and may vary among archaeal clades.
-
-Third, the estimate of **105.61°C** obtained when the root GC value is fixed is substantially higher than the ancestral temperatures reported in the reference study.
-
-This suggests that ancestral-temperature reconstruction may be sensitive to model assumptions and to the information imposed at the root.
-
-Finally, some deep ancestral parameters may show lower MCMC efficiency than parameters associated with extant taxa. Convergence and effective sample sizes should therefore be checked carefully in Tracer before interpreting individual ancestral reconstructions.
-
-## Future directions
-
-Several extensions could improve the analysis.
-
-- Include protein amino-acid composition as a second independent molecular thermometer.
-- Allow the relationship between temperature and GC content to vary among major archaeal clades.
-- Compare alternative phylogenetic topologies to evaluate the sensitivity of ancestral reconstructions to tree uncertainty.
-- Run longer MCMC analyses or optimize proposal moves for parameters with low effective sample sizes.
-- Compare the joint Bayesian reconstruction directly with a two-step GC-to-temperature reconstruction similar to the approach used in the reference study.
-
-## Reference
-
-Groussin, M. & Gouy, M. (2011). *Adaptation to Environmental Temperature Is a Major Determinant of Molecular Evolutionary Rates in Archaea*. Molecular Biology and Evolution, 28(9), 2661–2674.
-
-https://doi.org/10.1093/molbev/msr098
+Boussau B., Blanquart S., Necsulea A., Lartillot N., Gouy M. (2008). Parallel adaptations to high temperatures in the Archaean eon. *Nature*, 456, 942-945.
