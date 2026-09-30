@@ -117,6 +117,8 @@ Les analyses ont été menées dans cet ordre :
    - GC de la racine fixé à environ 86 % (`archaea_simpleRoot.Rev`) ;
    - GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
 
+Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Les 10 % premiers sont écartés (burn-in). Les résultats sont résumés par la moyenne a posteriori et l'intervalle de crédibilité à 95 % (quantiles 2,5 % et 97,5 %).
+
 ## 6. Résultats
 
 ### 6.1 Objectif 1 : la corrélation entre GC et température
@@ -131,28 +133,35 @@ Les analyses ont été menées dans cet ordre :
 
 Cette valeur est très proche de celle de Groussin et Gouy (r = 0,95) : nos données reproduisent bien le signal attendu. Mais cette analyse traite les espèces comme indépendantes, alors que des espèces proches se ressemblent en partie par héritage.
 
-**Le long de l'arbre**, avec le modèle complet, l'intervalle de crédibilité à 95 % de `beta` est **[0,5 ; 2,8]**. Il est entièrement positif : quand la température d'une lignée augmente au cours de l'évolution, son taux de GC tend lui aussi à augmenter.
+**Le long de l'arbre**, avec le modèle complet :
+
+- `beta` : moyenne **0,96**, intervalle de crédibilité à 95 % **[0,66 ; 1,41]** ;
+- probabilité a posteriori que `beta` soit positif : **> 0,999** (tous les échantillons retenus sont positifs).
+
+Quand la température d'une lignée augmente au cours de l'évolution, son taux de GC tend donc lui aussi à augmenter. Ce résultat est stable : dans le contrôle 1 (GC de la racine fixé), `beta` vaut 0,98 [0,71 ; 1,42].
 
 Les deux résultats ne disent pas la même chose : le r de Pearson décrit une ressemblance entre espèces actuelles, alors que `beta` décrit une association entre les changements des deux caractères au cours de l'évolution, en tenant compte de la parenté.
 
 ### 6.2 Objectif 2 : la température de la racine
 
-| Analyse | GC de la racine | `beta` | Température de la racine |
+| Analyse | GC de la racine | `beta` | Température de la racine (IC 95 %) |
 | --- | --- | --- | ---: |
-| Modèle complet | estimé | estimé | **80,91 °C** |
-| Contrôle 1 | fixé (≈ 86 %) | estimé | **105,61 °C** |
-| Contrôle 2 | fixé (≈ 86 %) | fixé à 0 | **72,15 °C** |
+| Modèle complet | estimé : 82,4 % [80,5 ; 84,2] | estimé | **80,9 °C** [58,8 ; 109,4] |
+| Contrôle 1 | fixé à 85,9 % | estimé | **105,6 °C** [75,3 ; 141,0] |
+| Contrôle 2 | fixé à 85,9 % | fixé à 0 | **72,2 °C** [47,9 ; 103,7] |
 
-**Résultat principal.** Avec le modèle complet, l'ancêtre commun est estimé à environ 81 °C, juste au-dessus du seuil de 80 °C qui sépare thermophiles et hyperthermophiles dans l'article. C'est un peu moins que l'estimation de Groussin et Gouy avec l'ARNr (90 °C) et proche de celle obtenue avec les protéines (82 °C) : les deux approches concluent à un ancêtre chaud.
+**Résultat principal.** Avec le modèle complet, la température de l'ancêtre commun est estimée à environ 81 °C, avec une incertitude large : entre 59 et 109 °C (intervalle à 95 %). Cet intervalle exclut un ancêtre mésophile et contient les estimations de Groussin et Gouy (90 °C avec l'ARNr, 82 °C avec les protéines) : les deux approches concluent à un ancêtre chaud. Il ne permet pas en revanche de trancher entre thermophile et hyperthermophile (seuil de 80 °C dans l'article).
 
-**Contrôles.** Fixer un GC élevé à la racine fait monter sa température à près de 106 °C : l'information sur le GC passe donc bien vers la température. Si l'on supprime en plus le lien (`beta = 0`), le GC ne renseigne plus sur la température, qui n'est plus estimée qu'à partir des températures actuelles : environ 72 °C. `beta` est donc bien le canal par lequel le GC informe la température. Ces contrôles montrent aussi que la reconstruction est sensible à ce que l'on impose à la racine.
+**Contrôles.** Fixer le GC de la racine à 85,9 %, une valeur plus élevée que celle estimée par le modèle (82,4 %), fait monter la température de la racine à environ 106 °C : l'information sur le GC passe donc vers la température. Si l'on supprime en plus le lien (`beta = 0`), le GC ne renseigne plus sur la température, qui n'est plus estimée qu'à partir des températures actuelles : environ 72 °C. `beta` est donc bien le canal par lequel le GC informe la température.
+
+Ces écarts sont à lire avec prudence : les intervalles des trois analyses se chevauchent largement. Ils montrent surtout que la reconstruction est sensible à ce que l'on impose à la racine.
 
 ## 7. Conclusion
 
 Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation évolutive entre GC et température et la température des ancêtres :
 
-1. **Le GC de l'ARNr et la température ont évolué ensemble chez les archées** : `beta` est positif, avec un intervalle de crédibilité à 95 % de [0,5 ; 2,8].
-2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 81 °C, ce qui rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente.
+1. **Le GC de l'ARNr et la température ont évolué ensemble chez les archées** : `beta` est positif (0,96, intervalle de crédibilité à 95 % [0,66 ; 1,41]).
+2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 81 °C (entre 59 et 109 °C), ce qui rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente.
 3. **`beta` est le mécanisme qui relie les deux caractères** : sans lui, le GC n'apporte plus d'information sur la température.
 
 ## 8. Limites et perspectives
@@ -163,8 +172,9 @@ Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation �
 - **Un seul lien pour tout l'arbre.** Le modèle suppose la même relation entre GC et température (un seul `beta`) dans toutes les lignées.
 - **Arbre fixé.** L'incertitude sur la topologie et les longueurs de branches n'est pas prise en compte.
 - **Modèle de substitution simplifié.** Le modèle T92 est plus simple que le modèle HKY85 retenu par l'article pour l'ARNr.
-- **Sensibilité à la racine.** L'estimation de 105,61 °C obtenue en fixant le GC de la racine dépasse nettement les valeurs de l'article.
-- **Convergence.** Les paramètres des nœuds profonds peuvent être moins bien échantillonnés par le MCMC ; la convergence et les tailles d'échantillon effectives (ESS) doivent être vérifiées dans Tracer.
+- **Sensibilité à la racine.** L'estimation de 105,6 °C obtenue en fixant le GC de la racine dépasse nettement les valeurs de l'article.
+- **Incertitude large sur la racine.** Les intervalles de crédibilité de la température de la racine couvrent environ 50 °C : les valeurs centrales doivent toujours être lues avec leur intervalle.
+- **Convergence.** Dans les modèles où `beta` est estimé, `beta`, `sigma_T` et `sigma_GC` ont des tailles d'échantillon effectives (ESS) d'environ 100 à 160, en dessous du seuil de 200 habituellement recommandé. Les chaînes sont stables (les deux moitiés de chaque chaîne donnent des moyennes proches), mais des analyses plus longues rendraient ces estimations plus précises.
 
 ### Perspectives
 
@@ -172,6 +182,7 @@ Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation �
 - Permettre à la relation entre GC et température de varier entre les grands groupes d'archées.
 - Tester d'autres topologies pour mesurer la sensibilité des reconstructions à l'arbre.
 - Comparer formellement les modèles avec et sans lien (contrôles 1 et 2) par un facteur de Bayes.
+- Allonger les analyses MCMC (ou ajuster les propositions) pour atteindre un ESS d'au moins 200 pour tous les paramètres.
 - Comparer notre reconstruction à une reconstruction en deux étapes, comme celle de l'article, sur les mêmes données.
 
 ## Références
