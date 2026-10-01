@@ -4,13 +4,41 @@
 
 ### 1.1 Contexte
 
-Les archées sont des micro-organismes qui vivent à des températures très variées, des milieux tempérés jusqu'à des sources chaudes proches de 100 °C.
+Les archées sont des micro-organismes qui vivent à des températures très variées, des milieux tempérés jusqu'à des sources chaudes (de mésophiles ~20°C à hyperthermophiles ~100°C).
 
-La température laisse une trace dans leurs molécules. L'ARN ribosomique (ARNr) contient de nombreuses régions en double brin, stabilisées par l'appariement des bases. Les paires G-C, liées par trois liaisons hydrogène, sont plus stables que les paires A-U, qui n'en ont que deux. Les espèces des milieux chauds ont donc un ARNr plus riche en GC.
+Deux signaux moléculaires sont connus pour être corrélés à la température de croissance optimale (OGT) : le %GC de l'ARN ribosomique et la composition en acides aminés des protéines, ce sont des **thermomètres moléculaires**.
+On peut donc, en principe, utiliser ces signaux pour reconstruire la température des ancêtres (des organismes qu'on ne peut évidemment plus observer directement).
 
-Le taux de GC de l'ARNr peut ainsi servir de **thermomètre moléculaire**. C'est particulièrement utile pour les ancêtres : on ne peut pas mesurer leur température, mais on peut reconstruire leurs séquences.
+### 1.2 L'étude de référence : Groussin et Gouy (2011)
 
-### 1.2 Objectifs
+- Leur méthode : deux étapes séparées
+
+Les auteurs ont étudié 35 espèces d'archées dont le génome est complètement séquencé, à partir de deux sources d'information : l'ARNr et 72 familles de protéines.
+
+1. **Reconstruire la composition en GC des ancêtres:**
+Construisent une phylogénie des Archées (35 génomes), utilisent des modèles non-homogènes d'évolution moléculaire pour reconstruire les séquences ancestrales (ARNr + protéines) à chaque nœud de l'arbre.
+2. **Traduire ces compositions en températures:** À partir de ces séquences ancestrales reconstruites, ils calculent le %GC (ou la composition en acides aminés) à chaque nœud.
+Chez les espèces actuelles, ils mesurent la relation entre composition et OGT (r = 0,95 pour le GC de l'ARNr, r = 0,84 pour un indice de composition des protéines). Cette  droite de régression GC% ↔ OGT sert de thermomètre : ils y placent les compositions ancestrales pour en déduire la température des ancêtres.
+
+Pour vérifier que ces corrélations ne viennent pas simplement de la parenté entre espèces, ils les recalculent avec des contrastes phylogénétiquement indépendants (PIC), qui confirment le lien.
+
+***Resultat***: 
+- Ils trouvent que l'ancêtre commun des archées était **hyperthermophile** : environ 90 °C d'après l'ARNr et 82 °C d'après les protéines avec un intervalle de confiance de 74-89 °C
+- Plusieurs lignées, notamment chez les Euryarchées, se sont ensuite adaptées progressivement à des milieux plus froids.
+- Les lignées des milieux tempérés évoluent plus vite (branches plus longues) : la température apparaît comme un déterminant majeur de la vitesse d'évolution moléculaire chez les archées.
+
+
+
+## 2 Problematique
+
+- Leur approche se fait en deux étapes séparées : (1) reconstruction du GC% ancestral par un modèle moléculaire, puis (2) régression post-hoc GC%→OGT.
+- Conséquence, l'incertitude de l'étape 1 et celle de l'étape 2 ne sont jamais combinées correctement. On sous-estime probablement l'incertitude réelle sur les températures ancestrales.
+- De plus, leur régression GC↔OGT est calibrée sur les espèces actuelles uniquement (corrélation "statique"), alors que ce qu'on veut vraiment tester, c'est si GC et température évoluent ensemble le long des branches de l'arbre (corrélation "dynamique"/évolutive). Ce n'est pas rigoureusement la même chose (c'est d'ailleurs pour cette raison qu'ils utilisent en renfort les contrastes indépendants de Felsenstein, PIC, mais toujours dans une étape séparée).
+
+
+
+
+## 3 Objectifs
 
 Ce projet a deux objectifs, qui s'enchaînent :
 
@@ -24,29 +52,7 @@ Ce projet a deux objectifs, qui s'enchaînent :
 
 Cette question a déjà été abordée par Groussin et Gouy (2011) avec une autre méthode. Nous présentons d'abord leur travail et ses limites, puis la façon dont notre modèle y répond.
 
-## 2. L'étude de référence : Groussin et Gouy (2011)
 
-### 2.1 Leur méthode : deux étapes séparées
-
-Les auteurs ont étudié 35 espèces d'archées dont le génome est complètement séquencé, à partir de deux sources d'information : l'ARNr et 72 familles de protéines.
-
-1. **Reconstruire la composition des ancêtres.** Sur un arbre phylogénétique fixé, ils estiment à chaque nœud ancestral le taux de GC de l'ARNr et la composition en acides aminés des protéines. Ils utilisent des modèles d'évolution dits « non homogènes », où la composition peut changer d'une branche à l'autre.
-2. **Traduire ces compositions en températures.** Chez les espèces actuelles, ils mesurent la relation entre composition et OGT (r = 0,95 pour le GC de l'ARNr, r = 0,84 pour un indice de composition des protéines). Cette droite sert de thermomètre : ils y placent les compositions ancestrales pour en déduire la température des ancêtres.
-
-Pour vérifier que ces corrélations ne viennent pas simplement de la parenté entre espèces, ils les recalculent avec des contrastes phylogénétiquement indépendants (PIC), qui confirment le lien.
-
-### 2.2 Leurs résultats
-
-- L'ancêtre commun des archées était **hyperthermophile** : environ 90 °C d'après l'ARNr et 82 °C d'après les protéines.
-- Plusieurs lignées, notamment chez les Euryarchées, se sont ensuite adaptées progressivement à des milieux plus froids.
-- Les lignées des milieux tempérés évoluent plus vite (branches plus longues) : la température apparaît comme un déterminant majeur de la vitesse d'évolution moléculaire chez les archées.
-
-### 2.3 Les limites de leur approche
-
-- **L'incertitude se perd entre les deux étapes.** La droite GC-température est utilisée comme si elle était exacte. Les auteurs le reconnaissent : cette incertitude n'est pas prise en compte, et les intervalles réels seraient plus larges.
-- **Le thermomètre traite les espèces comme indépendantes.** Les PIC vérifient la corrélation, mais la droite qui convertit le GC en température est ajustée sur les valeurs brutes des espèces.
-- **La température n'évolue pas dans leur modèle.** Les températures des espèces actuelles servent seulement à calibrer le thermomètre ; elles n'informent pas directement les ancêtres à travers l'arbre.
-- **Les résultats dépendent des données choisies.** Leur estimation pour l'ancêtre commun (de 74 à 89 °C) est nettement plus élevée que celle d'une étude antérieure (Boussau et al., 2008 : de 59 à 73 °C), écart qu'ils attribuent au choix des gènes et à l'incertitude des thermomètres.
 
 ## 3. Notre approche : un seul modèle
 
