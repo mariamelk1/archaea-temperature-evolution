@@ -1,4 +1,4 @@
-# Température et évolution moléculaire chez les archées
+# Corrélation entre la composition du GC de l'ARN ribosomique et la température de croissance dans Archaea.
 
 ## 1. Introduction
 
