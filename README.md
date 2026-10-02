@@ -32,9 +32,8 @@ Pour vérifier que ces corrélations ne viennent pas simplement de la parenté e
 ## 2 Problematique
 
 - Leur approche se fait en deux étapes séparées : (1) reconstruction du GC% ancestral par un modèle moléculaire, puis (2) régression post-hoc GC%→OGT.
-- Conséquence, l'incertitude de l'étape 1 et celle de l'étape 2 ne sont jamais combinées correctement. On sous-estime probablement l'incertitude réelle sur les températures ancestrales.
+- Conséquence, l'incertitude de l'étape 1 et celle de l'étape 2 ne sont jamais combinées correctement. On sous-estime probablement l'incertitude réelle sur les températures ancestrales,on obtient donc probablement des intervalles de confiance trop optimistes sur les températures ancestrales.
 - De plus, leur régression GC↔OGT est calibrée sur les espèces actuelles uniquement (corrélation "statique"), alors que ce qu'on veut vraiment tester, c'est si GC et température évoluent ensemble le long des branches de l'arbre (corrélation "dynamique"/évolutive). Ce n'est pas rigoureusement la même chose (c'est d'ailleurs pour cette raison qu'ils utilisent en renfort les contrastes indépendants de Felsenstein, PIC, mais toujours dans une étape séparée).
-
 
 
 
@@ -42,10 +41,10 @@ Pour vérifier que ces corrélations ne viennent pas simplement de la parenté e
 
 Ce projet a deux objectifs, qui s'enchaînent :
 
-1. **Estimer la corrélation entre le taux de GC et la température le long de l'arbre des archées.**
+1. **Modéliser l'évolution corrélée de la teneur en GC de l'ARNr et de la température de croissance à travers Archaea, et d'utiliser ce modèle pour estimer la corrélation entre le taux de GC et la température le long de l'arbre des archées.**
    Quand la température optimale de croissance (OGT) d'une lignée augmente au cours de l'évolution, son taux de GC augmente-t-il aussi ? Cette corrélation est mesurée par un paramètre du modèle, `beta`.
 
-2. **Utiliser cette corrélation pour estimer la température des ancêtres, en particulier celle de la racine.**
+2. **Utiliser cette corrélation pour inférer les températures ancestrales aux nœuds internes de l'arbre, notamment à l'ancêtre commun des Archées.**
    La racine de l'arbre représente l'ancêtre commun des espèces étudiées : vivait-il dans un milieu chaud ?
 
 > **Question de recherche :** peut-on estimer, dans un seul modèle phylogénétique bayésien, à la fois la corrélation évolutive entre GC et température et la température des ancêtres ?
@@ -54,7 +53,19 @@ Cette question a déjà été abordée par Groussin et Gouy (2011) avec une autr
 
 
 
-## 3. Notre approche : un seul modèle
+## 4. **Materiel et méthodes**
+
+***Données***
+
+L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
+
+| Fichier | Contenu |
+| --- | --- |
+| `data/archaea.nex` | Alignement de l'ARNr : 1 801 positions des régions en double brin, dont la composition est la plus liée à la température |
+| `data/archaea.tree` | Arbre phylogénétique des 33 espèces (topologie et longueurs de branches, considérées comme fixes) |
+| `data/archaea_temp_gc.nex` | Température optimale de croissance (OGT) et taux de GC de l'ARNr de chaque espèce actuelle |
+| `data/rna.itgc` | Fichier auxiliaire (85 taxons), non utilisé dans l'analyse actuelle |
+
 
 ### 3.1 Ce que nous changeons
 
@@ -101,17 +112,6 @@ logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sig
 - Inférence par MCMC : 100 000 générations, un échantillon toutes les 10 générations.
 
 </details>
-
-## 4. Données
-
-L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
-
-| Fichier | Contenu |
-| --- | --- |
-| `data/archaea.nex` | Alignement de l'ARNr : 1 801 positions des régions en double brin, dont la composition est la plus liée à la température |
-| `data/archaea.tree` | Arbre phylogénétique des 33 espèces (topologie et longueurs de branches, considérées comme fixes) |
-| `data/archaea_temp_gc.nex` | Température optimale de croissance (OGT) et taux de GC de l'ARNr de chaque espèce actuelle |
-| `data/rna.itgc` | Fichier auxiliaire (85 taxons), non utilisé dans l'analyse actuelle |
 
 ## 5. Analyses réalisées
 
