@@ -3,7 +3,7 @@
 ## 1. Introduction
 
 ### 1.1 Contexte
-
+ 
 Les archées sont des micro-organismes qui vivent à des températures très variées, des milieux tempérés jusqu'à des sources chaudes (de mésophiles ~20°C à hyperthermophiles ~100°C).
 
 Deux signaux moléculaires sont connus pour être corrélés à la température de croissance optimale (OGT) : le %GC de l'ARN ribosomique et la composition en acides aminés des protéines, ce sont des **thermomètres moléculaires**.
