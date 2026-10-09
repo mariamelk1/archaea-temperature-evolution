@@ -1,6 +1,100 @@
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+exp(rootGC)
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=10)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=10)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=10)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=1)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=1)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=1)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=1)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=1)
+moves.append(mvSlide(nodelogT[n_nodes], weight=1.0))
+nodeT[n_nodes]  := exp(nodelogT[n_nodes])
+rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
+rootTemp
+nodeLogitGC[n_nodes] ~ dnNormal(0, 1)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodeLogitGC[n_nodes] ~ dnNormal(0, 1)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+nodeLogitGC[n_nodes] ~ dnNormal(0, 1)
+moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
+nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
+rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
+rootGC
+source("scripts/archaea_simple.Rev")
 quit()
-source("script/revbayes/archaea_simple.Rev")
-source("scripts/revbayes/archaea_simple.Rev")
-ls
-quit()+
-j
+source("scripts/archaea_simpleRoot.Rev")
+quit()
+source("scripts/archaea_simple.Rev")
+source("scripts/archaea_simpleRoot.Rev")
+q()
+source("scripts/archaea_simple.Rev")
+q()
+source("scripts/archaea_simple.Rev")
+source("scripts/archaea_simpleRoot.Rev")
+source("scripts/archaea_GCRoot_β0.Rev")
+q()
+source("scripts/archaea_GCRoot_β0.Rev")
+q()
+source("scripts/archaea_simple.Rev")
+source("scripts/archaea_simpleRoot.Rev")
+q()
