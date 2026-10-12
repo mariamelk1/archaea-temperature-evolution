@@ -28,6 +28,12 @@ Pour vérifier que ces corrélations ne viennent pas simplement de la parenté e
 - Les lignées des milieux tempérés évoluent plus vite (branches plus longues) : la température apparaît comme un déterminant majeur de la vitesse d'évolution moléculaire chez les archées.
 
 
+![Relation entre le taux de GC et la température optimale de croissance](figures/gc_vs_temperature.png)
+
+- Corrélation de Pearson : **r = 0,949** (p < 2,2 × 10⁻¹⁶)
+- R² de la régression : **0,90**
+- Nombre d'espèces : **33**
+
 
 ## 2 Problematique
 
@@ -41,16 +47,11 @@ Pour vérifier que ces corrélations ne viennent pas simplement de la parenté e
 
 Ce projet a deux objectifs, qui s'enchaînent :
 
-1. **Modéliser l'évolution corrélée de la teneur en GC de l'ARNr et de la température de croissance à travers Archaea, et d'utiliser ce modèle pour estimer la corrélation entre le taux de GC et la température le long de l'arbre des archées.**
+1. **Modéliser l'évolution corrélée de la teneur en GC de l'ARNr et de la température de croissance à travers Archaea en tenant compte de l'inertie phylogénétique.**
    Quand la température optimale de croissance (OGT) d'une lignée augmente au cours de l'évolution, son taux de GC augmente-t-il aussi ? Cette corrélation est mesurée par un paramètre du modèle, `beta`.
 
 2. **Utiliser cette corrélation pour inférer les températures ancestrales aux nœuds internes de l'arbre, notamment à l'ancêtre commun des Archées.**
-   La racine de l'arbre représente l'ancêtre commun des espèces étudiées : vivait-il dans un milieu chaud ?
-
-> **Question de recherche :** peut-on estimer, dans un seul modèle phylogénétique bayésien, à la fois la corrélation évolutive entre GC et température et la température des ancêtres ?
-
-Cette question a déjà été abordée par Groussin et Gouy (2011) avec une autre méthode. Nous présentons d'abord leur travail et ses limites, puis la façon dont notre modèle y répond.
-
+   La racine de l'arbre représente l'ancêtre commun des espèces étudiées : vivait-il dans un milieu chaud ou froid ?
 
 
 ## 4. **Materiel et méthodes**
@@ -64,7 +65,7 @@ L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 | `data/archaea.nex` | Alignement de l'ARNr : 1 801 positions des régions en double brin, dont la composition est la plus liée à la température |
 | `data/archaea.tree` | Arbre phylogénétique des 33 espèces (topologie et longueurs de branches, considérées comme fixes) |
 | `data/archaea_temp_gc.nex` | Température optimale de croissance (OGT) et taux de GC de l'ARNr de chaque espèce actuelle |
-| `data/rna.itgc` | Fichier de GC de tous les noeuds interne de l'arbre y compris celui de la racine |
+| `data/rna.itgc` | Fichier de GC de tous les noeuds internes de l'arbre y compris celui de la racine |
 
 
 ### 3.1 Ce que nous changeons
@@ -77,21 +78,25 @@ Nous reprenons la même question avec l'ARNr, mais en remplaçant les deux étap
 | Le thermomètre traite les espèces comme indépendantes | La corrélation porte sur les changements le long des branches : la parenté entre espèces fait partie du modèle |
 | La température n'évolue pas le long de l'arbre | La température évolue elle-même le long des branches : les températures actuelles renseignent directement celles des ancêtres |
 
-Notre modèle ne règle pas en revanche la dernière limite : il n'utilise que l'ARNr (voir la section 8).
 
-### 3.2 Comment fonctionne le modèle
+### 3.2 Le principe du modèle : 
+Nous sommes partir du principe selon lequel es espèces phylogénétiquement proches tendent à présenter des caracteristique (ex : températures optimales de croissance) similaires. Cette similarité peut s'expliquer en partie par l'héritage de caractéristiques communes provenant de leur ancêtre commun, ce qui traduit une inertie phylogénétique. 
+Le modele browinien traduit cette intuition biologique et dit que les variations de température le long des branches de l'arbre phylogénétique sont supposées suivre une distribution normale, de moyenne la temperature au noeud parent et de variance proportionnelle à la longueur des branches et plus la branche est longue, plus la dispersion est grande.
 
-Le modèle décrit ce qui se passe le long de chaque branche de l'arbre :
-
-- **La température varie un peu, au hasard.** Plus la branche est longue, plus elle peut changer. L'ampleur de ces variations est réglée par `sigma_T`.
-- **Le GC varie aussi, en partie à cause de la température :**
+On a donc  : 
+- **La température** :
+```
+log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
+``
+`sigma_T`: contrôle la vitesse de dérive de la température, indépendamment du GC%.
 
   ```
-  changement de GC ≈ beta × changement de température + variation propre au GC
-  ```
+- **La taux de GC** :
+```
+logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
+```
+```changement de GC ≈ beta × changement de température + variation propre au GC``
 
-  La part que la température n'explique pas est réglée par `sigma_GC`.
-- **Le GC de chaque branche oriente l'évolution des séquences.** Sur une branche riche en GC, les substitutions vers G et C sont plus fréquentes. L'alignement d'ARNr apporte donc lui aussi de l'information sur le GC des ancêtres.
 
 Aux extrémités de l'arbre, la température et le GC des espèces actuelles sont connus. À partir de ces observations et des séquences, le modèle estime `beta` et les valeurs ancestrales, chacune avec son incertitude (distribution a posteriori).
 
@@ -100,15 +105,9 @@ Aux extrémités de l'arbre, la température et le GC des espèces actuelles son
 
 Pour la branche qui va du nœud parent `pa(i)` au nœud `i`, de longueur `bl(i)`, avec Normale(moyenne, écart-type) :
 
-```
-log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
-logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
-```
 
 - La température est modélisée en logarithme (elle reste positive) et le GC en logit (il reste entre 0 et 1) : ce sont deux mouvements browniens le long de l'arbre, couplés par `beta`.
-- Le GC d'une branche est la moyenne du GC à ses deux extrémités. Il définit une matrice de substitution T92 propre à la branche, avec un rapport transitions/transversions `kappa` commun à tout l'arbre. Les fréquences des bases à la racine sont déduites du GC de la racine.
-- La vraisemblance de l'alignement est calculée avec `dnPhyloCTMC` sur l'arbre fixé.
-- Lois a priori : `sigma_T` et `sigma_GC` suivent une exponentielle de taux 1 ; `kappa` une exponentielle de taux 0,1 ; `beta` ~ Normale(0, 10) ; log T à la racine ~ Normale(ln 75, 10) ; logit GC à la racine ~ Normale(0, 10).
+- Lois a priori : `sigma_T` et `sigma_GC` suivent une exponentielle de taux 1 ; `beta` ~ Normale(0, 10) ; log T à la racine ~ Normale(ln 75, 10) ; logit GC à la racine ~ Normale(0, 10).
 - Inférence par MCMC : 100 000 générations, un échantillon toutes les 10 générations.
 
 </details>
@@ -127,17 +126,7 @@ Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Le
 
 ## 6. Résultats
 
-### 6.1 Objectif 1 : la corrélation entre GC et température
 
-**Sans tenir compte de l'arbre**, la relation est très forte :
-
-![Relation entre le taux de GC et la température optimale de croissance](figures/gc_vs_temperature.png)
-
-- Corrélation de Pearson : **r = 0,949** (p < 2,2 × 10⁻¹⁶)
-- R² de la régression : **0,90**
-- Nombre d'espèces : **33**
-
-Cette valeur est très proche de celle de Groussin et Gouy (r = 0,95) : nos données reproduisent bien le signal attendu. Mais cette analyse traite les espèces comme indépendantes, alors que des espèces proches se ressemblent en partie par héritage.
 
 **Le long de l'arbre**, avec le modèle complet :
 
