@@ -87,10 +87,8 @@ On a donc  :
 - **La température** :
 ```
 log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
-``
+```
 `sigma_T`: contrôle la vitesse de dérive de la température, indépendamment du GC%.
-
-  ```
 - **La taux de GC** :
 ```
 logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
