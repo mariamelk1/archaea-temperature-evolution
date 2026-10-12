@@ -64,7 +64,7 @@ L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 | `data/archaea.nex` | Alignement de l'ARNr : 1 801 positions des régions en double brin, dont la composition est la plus liée à la température |
 | `data/archaea.tree` | Arbre phylogénétique des 33 espèces (topologie et longueurs de branches, considérées comme fixes) |
 | `data/archaea_temp_gc.nex` | Température optimale de croissance (OGT) et taux de GC de l'ARNr de chaque espèce actuelle |
-| `data/rna.itgc` | Fichier auxiliaire (85 taxons), non utilisé dans l'analyse actuelle |
+| `data/rna.itgc` | Fichier de GC de tous les noeuds interne de l'arbre y compris celui de la racine |
 
 
 ### 3.1 Ce que nous changeons
