@@ -34,7 +34,7 @@ Pour vérifier que ces corrélations ne viennent pas simplement de la parenté e
 - R² de la régression : **0,90**
 - Nombre d'espèces : **33**
 
-
+ 
 ## 2 Problematique
 
 - Leur approche se fait en deux étapes séparées : (1) reconstruction du GC% ancestral par un modèle moléculaire, puis (2) régression post-hoc GC%→OGT.
