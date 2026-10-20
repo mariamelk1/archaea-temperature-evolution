@@ -56,7 +56,7 @@ Ce projet a deux objectifs, qui s'enchaînent :
 
 ## 4. **Materiel et méthodes**
 
-***Données***
+***4-1 Données***
 
 L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 
@@ -68,44 +68,50 @@ L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 | `data/rna.itgc` | Fichier de GC de tous les noeuds internes de l'arbre y compris celui de la racine |
 
 
-### 3.1 Ce que nous changeons
+### 4.2 Ce que nous changeons
 
 Nous reprenons la même question avec l'ARNr, mais en remplaçant les deux étapes par un seul modèle bayésien, implémenté dans RevBayes.
 
-| Limite de l'approche en deux étapes | Réponse de notre modèle |
-| --- | --- |
-| L'incertitude du thermomètre n'est pas propagée | La corrélation (`beta`), les GC ancestraux et les températures ancestrales sont estimés ensemble : les intervalles de crédibilité intègrent toutes ces incertitudes |
-| Le thermomètre traite les espèces comme indépendantes | La corrélation porte sur les changements le long des branches : la parenté entre espèces fait partie du modèle |
-| La température n'évolue pas le long de l'arbre | La température évolue elle-même le long des branches : les températures actuelles renseignent directement celles des ancêtres |
+| Limite de l'approche de l'article | Ce que notre modèle apporte |
+|---|---|
+| **Analyse en deux étapes** : le thermomètre est d'abord estimé, puis utilisé pour étudier la relation avec la température. | **Estimation simultanée** : la corrélation \(\beta\), les compositions en GC ancestrales et les températures ancestrales sont estimées conjointement dans **un seul modèle bayésien**. |
+| **L'incertitude du thermomètre n'est pas propagée** jusqu'à l'estimation des températures ancestrales. | L'approche bayésienne **propage l'incertitude de tous les paramètres** dans la distribution a posteriori. Les intervalles de crédibilité des températures ancestrales tiennent donc compte simultanément de l'incertitude sur \(\beta\), le GC et les autres paramètres du modèle. |
+| **Les espèces sont traitées comme des observations indépendantes** dans la régression du thermomètre. | La relation entre GC et température est modélisée **le long des branches de l'arbre**. Les espèces apparentées partagent donc une histoire évolutive commune, et cette dépendance phylogénétique est directement prise en compte. |
+| **La température est essentiellement considérée comme une variable à expliquer à partir des observations actuelles.** | La température est elle-même **modélisée comme un caractère évolutif qui varie le long de l'arbre**. Les températures actuelles fournissent ainsi de l'information pour estimer les températures des ancêtres. |
+| L'article ne permet pas de tester directement si la relation GC–température est nécessaire au fonctionnement du modèle. | On peut réaliser une **expérience de contrôle avec \(\beta=0\)**. Cela supprime volontairement la relation GC–température et permet de vérifier si les résultats observés dépendent réellement de ce mécanisme. |
 
 
-### 3.2 Le principe du modèle : 
-Nous sommes partir du principe selon lequel es espèces phylogénétiquement proches tendent à présenter des caracteristique (ex : températures optimales de croissance) similaires. Cette similarité peut s'expliquer en partie par l'héritage de caractéristiques communes provenant de leur ancêtre commun, ce qui traduit une inertie phylogénétique. 
-Le modele browinien traduit cette intuition biologique et dit que les variations de température le long des branches de l'arbre phylogénétique sont supposées suivre une distribution normale, de moyenne la temperature au noeud parent et de variance proportionnelle à la longueur des branches et plus la branche est longue, plus la dispersion est grande.
+### 4.3 Le principe du modèle : 
+Nous sommes partir du principe selon lequel les espèces phylogénétiquement proches tendent à présenter des caracteristique (ex : températures optimales de croissance) similaires. Cette similarité peut s'expliquer en partie par l'héritage de caractéristiques communes provenant de leur ancêtre commun, ce qui traduit une inertie phylogénétique. 
+Le modele browinien traduit cette intuition biologique et dit que les variations d'une variable le long des branches de l'arbre phylogénétique sont supposées suivre une distribution normale, de moyenne la valeur de la variable au noeud parent et de variance proportionnelle à la longueur des branches et plus la branche est longue, plus la dispersion est grande.
 
 On a donc  : 
 - **La température** :
 ```
 log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
 ```
-`sigma_T`: contrôle la vitesse de dérive de la température, indépendamment du GC%.
+`sigma_T`: contrôle la vitesse de dérive de la température, indépendamment du GC%. 
+ 
 - **La taux de GC** :
+Il a été établir qu'un lien entre composition en GC et température est bien existe : les structures secondaires de l’ARN riches en GC sont thermodynamiquement plus stables à haute température (littérature). Les données de Groussin & Gouy, 2011 le confirment, avec une corrélation de Pearson de r = 0,95 entre le GC% de l’ARNr et la température optimale de croissance.
+Pour alors estimer la force exacte de ce lien, nous avons effectué une regression linéaire de la temperature sur le taux GC par le biais de beta.
+Ainsi  :
+- beta > 0 : quand une lignée se réchauffe (log T augmente le long d’une branche), son GC% a tendance à augmenter en même temps.
+- beta < 0 : relation inverse — irait à l’encontre de la littérature.
+- beta ≈ 0 (intervalle de crédibilité à 95% contenant 0) : pas de preuve statistique de corrélation évolutive entre les deux caractères, une fois l’inertie phylogénétique prise en compte.
 ```
 logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
 ```
 ```changement de GC ≈ beta × changement de température + variation propre au GC``
 
 
-Aux extrémités de l'arbre, la température et le GC des espèces actuelles sont connus. À partir de ces observations et des séquences, le modèle estime `beta` et les valeurs ancestrales, chacune avec son incertitude (distribution a posteriori).
+Aux extrémités de l'arbre, la température et le GC des espèces actuelles sont connus. À partir de ces observations, le modèle estime `beta` et les valeurs ancestrales, chacune avec son incertitude (distribution a posteriori).
 
 <details>
 <summary><b>Détails techniques du modèle</b></summary>
 
-Pour la branche qui va du nœud parent `pa(i)` au nœud `i`, de longueur `bl(i)`, avec Normale(moyenne, écart-type) :
-
-
 - La température est modélisée en logarithme (elle reste positive) et le GC en logit (il reste entre 0 et 1) : ce sont deux mouvements browniens le long de l'arbre, couplés par `beta`.
-- Lois a priori : `sigma_T` et `sigma_GC` suivent une exponentielle de taux 1 ; `beta` ~ Normale(0, 10) ; log T à la racine ~ Normale(ln 75, 10) ; logit GC à la racine ~ Normale(0, 10).
+- Lois a priori : `sigma_T` et `sigma_GC` suivent une exponentielle de taux 1 ; `beta` ~ Normale(0, 5) ; log T à la racine ~ Normale(ln 75, 10) ; logit GC à la racine ~ Normale(0, 10).
 - Inférence par MCMC : 100 000 générations, un échantillon toutes les 10 générations.
 
 </details>
@@ -124,30 +130,28 @@ Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Le
 
 ## 6. Résultats
 
-### 6.1 Objectif 1 : la corrélation entre GC et température
+
 
 **Le long de l'arbre**, avec le modèle complet :
 
-- `beta` : moyenne **0,49**, intervalle de crédibilité à 95 % **[0,32 ; 0,67]** (ESS = 1 668) ;
-- l'intervalle exclut 0 : `beta` est positif.
+- `beta` : moyenne **0,96**, intervalle de crédibilité à 95 % **[0,66 ; 1,41]** ;
+- probabilité a posteriori que `beta` soit positif : **> 0,999** (tous les échantillons retenus sont positifs).
 
-Quand la température d'une lignée augmente au cours de l'évolution, son taux de GC tend donc lui aussi à augmenter. Ce résultat confirme celui de Groussin et Gouy (2011).
+Quand la température d'une lignée augmente au cours de l'évolution, son taux de GC tend donc lui aussi à augmenter. Ce résultat est stable : dans le contrôle 1 (GC de la racine fixé), `beta` vaut 0,98 [0,71 ; 1,42].
 
-Les vitesses d'évolution estimées sont `sigma_T` = **0,68** (température) et `sigma_GC` = **0,32** (part de variation du GC non expliquée par la température).
-
-Les deux mesures ne disent pas la même chose : le r de Pearson (0,949) décrit une ressemblance entre espèces actuelles, alors que `beta` décrit une association entre les changements des deux caractères au cours de l'évolution, en tenant compte de la parenté.
+Les deux résultats ne disent pas la même chose : le r de Pearson décrit une ressemblance entre espèces actuelles, alors que `beta` décrit une association entre les changements des deux caractères au cours de l'évolution, en tenant compte de la parenté.
 
 ### 6.2 Objectif 2 : la température de la racine
 
 | Analyse | GC de la racine | `beta` | Température de la racine (IC 95 %) |
 | --- | --- | --- | ---: |
-| Modèle complet | estimé : **80,4 %** [0,76 ; 0,85] | estimé : 0,49 | **71,9 °C** [45,48 ; 102,23] |
-| Contrôle 1 | imposé à 85,9 % | estimé : 0,55 | **107,0 °C** [78,1 ; 139,0] |
-| Contrôle 2 | imposé à 85,9 % | fixé à 0 | **72,8 °C** [46,1 ; 102,5] |
+| Modèle complet | estimé : 82,4 % [80,5 ; 84,2] | estimé | **80,9 °C** [58,8 ; 109,4] |
+| Contrôle 1 | fixé à 85,9 % | estimé | **105,6 °C** [75,3 ; 141,0] |
+| Contrôle 2 | fixé à 85,9 % | fixé à 0 | **72,2 °C** [47,9 ; 103,7] |
 
-**Résultat principal.** Avec le modèle complet, la température de l'ancêtre commun est estimée à environ 72 °C : un ancêtre thermophile, avec une incertitude large : entre 45 et 102 °C (intervalle à 95 %). Cet intervalle exclut un ancêtre mésophile (moins de 40 °C environ) et contient les estimations de Groussin et Gouy (90 °C avec l'ARNr, 82 °C avec les protéines) : les deux approches concluent à un ancêtre chaud. Notre estimation centrale est plus basse que celles de l'article, mais l'intervalle ne permet pas de trancher entre thermophile et hyperthermophile (seuil de 80 °C dans l'article).
+**Résultat principal.** Avec le modèle complet, la température de l'ancêtre commun est estimée à environ 81 °C, avec une incertitude large : entre 59 et 109 °C (intervalle à 95 %). Cet intervalle exclut un ancêtre mésophile et contient les estimations de Groussin et Gouy (90 °C avec l'ARNr, 82 °C avec les protéines) : les deux approches concluent à un ancêtre chaud. Il ne permet pas en revanche de trancher entre thermophile et hyperthermophile (seuil de 80 °C dans l'article).
 
-**Contrôles.** Imposer le GC de la racine à 85,9 %, une valeur plus élevée que celle estimée par le modèle (80,4 %), fait monter la température de la racine à environ 107 °C, alors que `beta` reste du même ordre (0,55 contre 0,49) : l'information sur le GC passe donc vers la température. Si l'on supprime en plus le lien (`beta = 0`), le GC ne renseigne plus sur la température, qui n'est plus estimée qu'à partir des températures actuelles : environ 73 °C, soit la valeur du modèle complet. `beta` est donc bien le lien par lequel le GC renseigne la température.
+**Contrôles.** Fixer le GC de la racine à 85,9 %, une valeur plus élevée que celle estimée par le modèle (82,4 %), fait monter la température de la racine à environ 106 °C : l'information sur le GC passe donc vers la température. Si l'on supprime en plus le lien (`beta = 0`), le GC ne renseigne plus sur la température, qui n'est plus estimée qu'à partir des températures actuelles : environ 72 °C. `beta` est donc bien le canal par lequel le GC informe la température.
 
 Ces écarts sont à lire avec prudence : les intervalles des trois analyses se chevauchent largement. Ils montrent surtout que la reconstruction est sensible à ce que l'on impose à la racine.
 
@@ -155,22 +159,21 @@ Ces écarts sont à lire avec prudence : les intervalles des trois analyses se c
 
 Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation évolutive entre GC et température et la température des ancêtres :
 
-1. **Le GC de l'ARNr et la température ont évolué ensemble chez les archées** : `beta` est positif (0,49, intervalle de crédibilité à 95 % [0,32 ; 0,67]).
-2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 72 °C, un ancêtre thermophile, avec un intervalle à 95 % de 45 à 102 °C. Cela rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente, mais l'incertitude ne permet pas de distinguer un ancêtre thermophile d'un ancêtre hyperthermophile. En imposant le GC connu de la racine, l'estimation monte à environ 107 °C, avec un intervalle plus haut et toujours large.
-3. **`beta` est le lien qui relie les deux caractères** : sans lui (`beta = 0`), le GC n'apporte plus d'information sur la température, qui retombe à environ 73 °C malgré le GC connu.
-
+1. **Le GC de l'ARNr et la température ont évolué ensemble chez les archées** : `beta` est positif (0,96, intervalle de crédibilité à 95 % [0,66 ; 1,41]).
+2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 81 °C (entre 59 et 109 °C), ce qui rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente.
+3. **`beta` est le mécanisme qui relie les deux caractères** : sans lui, le GC n'apporte plus d'information sur la température.
 
 ## 8. Limites et perspectives
 
 ### Limites
 
 - **Données restreintes.** 33 espèces et un seul signal moléculaire, l'ARNr, alors que Groussin et Gouy utilisaient aussi les protéines.
-- **Un seul lien pour tout l'arbre.** Le modèle suppose la même relation linéaire entre GC et température (un seul `beta`) dans toutes les lignées.
+- **Un seul lien pour tout l'arbre.** Le modèle suppose la même relation entre GC et température (un seul `beta`) dans toutes les lignées.
 - **Arbre fixé.** L'incertitude sur la topologie et les longueurs de branches n'est pas prise en compte.
 - **Modèle de substitution simplifié.** Le modèle T92 est plus simple que le modèle HKY85 retenu par l'article pour l'ARNr.
-- **Sensibilité à la racine.** L'estimation de 107 °C obtenue en imposant le GC de la racine dépasse nettement les valeurs centrales de l'article (90 et 82 °C), même si son intervalle les contient. Avec le clamp, le GC de la racine est de plus traité comme une valeur exacte, sans incertitude.
-- **Incertitude large sur la racine.** Les intervalles de crédibilité de la température de la racine couvrent près de 60 °C (par exemple [45,5 ; 102,2] pour le modèle complet et [78,1 ; 139,0] pour le contrôle 1) : les valeurs centrales doivent toujours être lues avec leur intervalle.
-- **Convergence.** `beta` est bien échantillonné (ESS = 1 668), mais certains paramètres et nœuds internes ont des tailles d'échantillon effectives faibles. Par exemple dans le contrôle 1, `sigma_T` a un ESS de 48 et plusieurs nœuds internes sont sous 100, en dessous du seuil de 200 habituellement recommandé. Des analyses plus longues rendraient ces estimations plus précises.
+- **Sensibilité à la racine.** L'estimation de 105,6 °C obtenue en fixant le GC de la racine dépasse nettement les valeurs de l'article.
+- **Incertitude large sur la racine.** Les intervalles de crédibilité de la température de la racine couvrent environ 50 °C : les valeurs centrales doivent toujours être lues avec leur intervalle.
+- **Convergence.** Dans les modèles où `beta` est estimé, `beta`, `sigma_T` et `sigma_GC` ont des tailles d'échantillon effectives (ESS) d'environ 100 à 160, en dessous du seuil de 200 habituellement recommandé. Les chaînes sont stables (les deux moitiés de chaque chaîne donnent des moyennes proches), mais des analyses plus longues rendraient ces estimations plus précises.
 
 ### Perspectives
 
