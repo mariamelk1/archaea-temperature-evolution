@@ -56,7 +56,7 @@ Ce projet a deux objectifs, qui s'enchaînent :
 
 ## 4. **Materiel et méthodes**
 
-***4-1 Données***
+### 4-1 Données
 
 L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 
