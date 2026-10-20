@@ -68,18 +68,18 @@ L'analyse porte sur 33 espèces d'archées. Le dossier `data/` contient :
 | `data/rna.itgc` | Fichier de GC de tous les noeuds internes de l'arbre y compris celui de la racine |
 
 
-### 4.2 Ce que nous changeons
+### 4.2 Methodologie de notre modele 
 
 Nous reprenons la même question avec l'ARNr, mais en remplaçant les deux étapes par un seul modèle bayésien, implémenté dans RevBayes.
 
 | Limite de l'approche de l'article | Ce que notre modèle apporte |
 |---|---|
-| **Analyse en deux étapes** : le thermomètre est d'abord estimé, puis utilisé pour étudier la relation avec la température. | **Estimation simultanée** : la corrélation \(\beta\), les compositions en GC ancestrales et les températures ancestrales sont estimées conjointement dans **un seul modèle bayésien**. |
-| **L'incertitude du thermomètre n'est pas propagée** jusqu'à l'estimation des températures ancestrales. | L'approche bayésienne **propage l'incertitude de tous les paramètres** dans la distribution a posteriori. Les intervalles de crédibilité des températures ancestrales tiennent donc compte simultanément de l'incertitude sur \(\beta\), le GC et les autres paramètres du modèle. |
-| **Les espèces sont traitées comme des observations indépendantes** dans la régression du thermomètre. | La relation entre GC et température est modélisée **le long des branches de l'arbre**. Les espèces apparentées partagent donc une histoire évolutive commune, et cette dépendance phylogénétique est directement prise en compte. |
-| **La température est essentiellement considérée comme une variable à expliquer à partir des observations actuelles.** | La température est elle-même **modélisée comme un caractère évolutif qui varie le long de l'arbre**. Les températures actuelles fournissent ainsi de l'information pour estimer les températures des ancêtres. |
-| L'article ne permet pas de tester directement si la relation GC–température est nécessaire au fonctionnement du modèle. | On peut réaliser une **expérience de contrôle avec \(\beta=0\)**. Cela supprime volontairement la relation GC–température et permet de vérifier si les résultats observés dépendent réellement de ce mécanisme. |
-
+| **Analyse en deux étapes** : Reconstruction de séquences ancestrales à chaque nœud (via bppAncestor), à partir desquelles on calcule la composition GC/acides aminés ancestrale.
+Cette composition est projetée sur la relation composition OGT et GC établie empiriquement sur les espèces actuelles, pour inférer l’OGT ancestrale à chaque nœud.
+Ils utilisent aussi les contrastes phylogénétiques indépendants (PIC) pour éviter le biais lié au fait que les espèces ne sont pas des observations statistiquement indépendantes (ancêtre commun). | **Estimation simultanée** : la corrélation \(\beta\), les compositions en GC ancestrales et les températures ancestrales sont estimées conjointement dans **un seul modèle bayésien**. |
+| **L'incertitude de la relation GC–température n'est pas propagée** jusqu'à l'estimation des températures ancestrales. | L'approche bayésienne **propage l'incertitude de tous les paramètres** dans la distribution a posteriori. Les intervalles de crédibilité des températures ancestrales tiennent donc compte simultanément de l'incertitude sur \(\beta\), le GC et les autres paramètres du modèle. |
+| **Les espèces sont traitées comme des observations indépendantes** dans la régression du GC-Temperature. | La relation entre GC et température est modélisée **le long des branches de l'arbre**. Les espèces apparentées partagent donc une histoire évolutive commune, et cette dépendance phylogénétique est directement prise en compte. |
+| **La température est essentiellement considérée comme une variable à expliquer à partir des observations actuelles.** | La température est elle-même **modélisée comme un caractère évolutif qui varie le long de l'arbre**. Les températures actuelles fournissent ainsi de l'information pour estimer les températures des ancêtres.
 
 ### 4.3 Le principe du modèle : 
 Nous sommes partir du principe selon lequel les espèces phylogénétiquement proches tendent à présenter des caracteristique (ex : températures optimales de croissance) similaires. Cette similarité peut s'expliquer en partie par l'héritage de caractéristiques communes provenant de leur ancêtre commun, ce qui traduit une inertie phylogénétique. 
@@ -121,6 +121,7 @@ Aux extrémités de l'arbre, la température et le GC des espèces actuelles son
 Les analyses ont été menées dans cet ordre :
 
 1. **Vérification sans arbre.** Corrélation de Pearson et régression linéaire entre GC et OGT chez les 33 espèces actuelles, pour vérifier que nos données contiennent le signal attendu.
+
 2. **Modèle complet** (`archaea_simple.Rev`). Tout est estimé : `beta` (objectif 1) et la température de la racine (objectif 2).
 3. **Deux analyses de contrôle**, pour comprendre comment l'information sur le GC atteint la température :
    - GC de la racine fixé à environ 86 % (`archaea_simpleRoot.Rev`) ;
