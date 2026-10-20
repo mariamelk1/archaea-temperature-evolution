@@ -22,11 +22,12 @@ Chez les espèces actuelles, ils mesurent la relation entre composition et OGT (
 
 Pour vérifier que ces corrélations ne viennent pas simplement de la parenté entre espèces, ils les recalculent avec des contrastes phylogénétiquement indépendants (PIC), qui confirment le lien.
 
-***Resultat***: 
+***Resultat article***: 
 - Ils trouvent que l'ancêtre commun des archées était **hyperthermophile** : environ 90 °C d'après l'ARNr et 82 °C d'après les protéines avec un intervalle de confiance de 74-89 °C
 - Plusieurs lignées, notamment chez les Euryarchées, se sont ensuite adaptées progressivement à des milieux plus froids.
 - Les lignées des milieux tempérés évoluent plus vite (branches plus longues) : la température apparaît comme un déterminant majeur de la vitesse d'évolution moléculaire chez les archées.
 
+Pour une representation de nos données on trouve quil y a une correlation positive entre GC et Temperature pour les especes actuelles de archea. Cette correlation est significative (p < 2,2 × 10⁻¹⁶)
 
 ![Relation entre le taux de GC et la température optimale de croissance](figures/gc_vs_temperature.png)
 
@@ -124,7 +125,7 @@ Les analyses ont été menées dans cet ordre :
 
 2. **Modèle complet** (`archaea_simple.Rev`). Tout est estimé : `beta` (objectif 1) et la température de la racine (objectif 2).
 3. **Deux analyses de contrôle**, pour comprendre comment l'information sur le GC atteint la température :
-   - GC de la racine fixé à environ 86 % (`archaea_simpleRoot.Rev`) ;
+   - GC de la racine fixé à environ 85,9 % (`archaea_simpleRoot.Rev`) ;
    - GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
 
 Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Les 10 % premiers sont écartés (burn-in). Les résultats sont résumés par la moyenne a posteriori et l'intervalle de crédibilité à 95 % (quantiles 2,5 % et 97,5 %).
@@ -143,7 +144,7 @@ Quand la température d'une lignée augmente au cours de l'évolution, son taux 
 
 Les vitesses d'évolution estimées sont `sigma_T` = **0,68** (température) et `sigma_GC` = **0,32** (part de variation du GC non expliquée par la température).
 
-Les deux mesures ne disent pas la même chose : le r de Pearson (0,949) décrit une ressemblance entre espèces actuelles, alors que `beta` décrit une association entre les changements des deux caractères au cours de l'évolution, en tenant compte de la parenté.
+
 
 ### 6.2 Objectif 2 : la température de la racine
 
