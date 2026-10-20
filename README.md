@@ -166,26 +166,6 @@ Oui, il est possible d'estimer dans un seul modèle à la fois la corrélation �
 2. **Cette corrélation permet d'estimer la température de l'ancêtre commun** : environ 72 °C, un ancêtre thermophile, avec un intervalle à 95 % de 45 à 102 °C. Cela rejoint la conclusion de Groussin et Gouy d'une origine chaude des archées, obtenue ici par une méthode différente, mais l'incertitude ne permet pas de distinguer un ancêtre thermophile d'un ancêtre hyperthermophile. En imposant le GC connu de la racine, l'estimation monte à environ 107 °C, avec un intervalle plus haut et toujours large.
 3. **`beta` est le lien qui relie les deux caractères** : sans lui (`beta = 0`), le GC n'apporte plus d'information sur la température, qui retombe à environ 73 °C malgré le GC connu.
 
-## 8. Limites et perspectives
-
-### Limites
-
-- **Données restreintes.** 33 espèces et un seul signal moléculaire, l'ARNr, alors que Groussin et Gouy utilisaient aussi les protéines.
-- **Un seul lien pour tout l'arbre.** Le modèle suppose la même relation linéaire entre GC et température (un seul `beta`) dans toutes les lignées.
-- **Arbre fixé.** L'incertitude sur la topologie et les longueurs de branches n'est pas prise en compte.
-- **Modèle de substitution simplifié.** Le modèle T92 est plus simple que le modèle HKY85 retenu par l'article pour l'ARNr.
-- **Sensibilité à la racine.** L'estimation de 107 °C obtenue en imposant le GC de la racine dépasse nettement les valeurs centrales de l'article (90 et 82 °C), même si son intervalle les contient. Avec le clamp, le GC de la racine est de plus traité comme une valeur exacte, sans incertitude.
-- **Incertitude large sur la racine.** Les intervalles de crédibilité de la température de la racine couvrent près de 60 °C (par exemple [45,5 ; 102,2] pour le modèle complet et [78,1 ; 139,0] pour le contrôle 1) : les valeurs centrales doivent toujours être lues avec leur intervalle.
-- **Convergence.** `beta` est bien échantillonné (ESS = 1 668), mais certains paramètres et nœuds internes ont des tailles d'échantillon effectives faibles. Par exemple dans le contrôle 1, `sigma_T` a un ESS de 48 et plusieurs nœuds internes sont sous 100, en dessous du seuil de 200 habituellement recommandé. Des analyses plus longues rendraient ces estimations plus précises.
-
-### Perspectives
-
-- Ajouter la composition des protéines comme second thermomètre moléculaire.
-- Permettre à la relation entre GC et température de varier entre les grands groupes d'archées.
-- Tester d'autres topologies pour mesurer la sensibilité des reconstructions à l'arbre.
-- Comparer formellement les modèles avec et sans lien (contrôles 1 et 2) par un facteur de Bayes.
-- Allonger les analyses MCMC (ou ajuster les propositions) pour atteindre un ESS d'au moins 200 pour tous les paramètres.
-- Comparer notre reconstruction à une reconstruction en deux étapes, comme celle de l'article, sur les mêmes données.
 
 ## Références
 
