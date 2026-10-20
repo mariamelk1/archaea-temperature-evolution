@@ -75,9 +75,7 @@ Nous reprenons la même question avec l'ARNr, mais en remplaçant les deux étap
 
 | Limite de l'approche de l'article | Ce que notre modèle apporte |
 |---|---|
-| **Analyse en deux étapes** : Reconstruction de séquences ancestrales à chaque nœud (via bppAncestor), à partir desquelles on calcule la composition GC/acides aminés ancestrale.
-Cette composition est projetée sur la relation composition OGT et GC établie empiriquement sur les espèces actuelles, pour inférer l’OGT ancestrale à chaque nœud.
-Ils utilisent aussi les contrastes phylogénétiques indépendants (PIC) pour éviter le biais lié au fait que les espèces ne sont pas des observations statistiquement indépendantes (ancêtre commun). | **Estimation simultanée** : la corrélation \(\beta\), les compositions en GC ancestrales et les températures ancestrales sont estimées conjointement dans **un seul modèle bayésien**. |
+| **Analyse en deux étapes** : Reconstruction de séquences ancestrales à chaque nœud (via bppAncestor), à partir desquelles on calcule la composition GC/acides aminés ancestrale. Cette composition est projetée sur la relation composition OGT et GC établie empiriquement sur les espèces actuelles, pour inférer l’OGT ancestrale à chaque nœud. Ils utilisent aussi les contrastes phylogénétiques indépendants (PIC) pour éviter le biais lié au fait que les espèces ne sont pas des observations statistiquement indépendantes (ancêtre commun). | **Estimation simultanée** : la corrélation \(beta\), les compositions en GC ancestrales et les températures ancestrales sont estimées conjointement dans **un seul modèle bayésien**. |
 | **L'incertitude de la relation GC–température n'est pas propagée** jusqu'à l'estimation des températures ancestrales. | L'approche bayésienne **propage l'incertitude de tous les paramètres** dans la distribution a posteriori. Les intervalles de crédibilité des températures ancestrales tiennent donc compte simultanément de l'incertitude sur \(\beta\), le GC et les autres paramètres du modèle. |
 | **Les espèces sont traitées comme des observations indépendantes** dans la régression du GC-Temperature. | La relation entre GC et température est modélisée **le long des branches de l'arbre**. Les espèces apparentées partagent donc une histoire évolutive commune, et cette dépendance phylogénétique est directement prise en compte. |
 | **La température est essentiellement considérée comme une variable à expliquer à partir des observations actuelles.** | La température est elle-même **modélisée comme un caractère évolutif qui varie le long de l'arbre**. Les températures actuelles fournissent ainsi de l'information pour estimer les températures des ancêtres.
@@ -94,7 +92,7 @@ log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
 `sigma_T`: contrôle la vitesse de dérive de la température, indépendamment du GC%. 
  
 - **La taux de GC** :
-Il a été établir qu'un lien entre composition en GC et température est bien existe : les structures secondaires de l’ARN riches en GC sont thermodynamiquement plus stables à haute température (littérature). Les données de Groussin & Gouy, 2011 le confirment, avec une corrélation de Pearson de r = 0,95 entre le GC% de l’ARNr et la température optimale de croissance.
+Il a été établir qu'un lien entre composition en GC et température existe : les structures secondaires de l’ARN riches en GC sont thermodynamiquement plus stables à haute température (littérature). Les données de Groussin & Gouy, 2011 le confirment, avec une corrélation de Pearson de r = 0,95 entre le GC% de l’ARNr et la température optimale de croissance.
 Pour alors estimer la force exacte de ce lien, nous avons effectué une regression linéaire de la temperature sur le taux GC par le biais de beta.
 Ainsi  :
 - beta > 0 : quand une lignée se réchauffe (log T augmente le long d’une branche), son GC% a tendance à augmenter en même temps.
