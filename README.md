@@ -124,12 +124,15 @@ Les analyses ont été menées dans cet ordre :
 
 1. **Vérification sans arbre.** Corrélation de Pearson et régression linéaire entre GC et OGT chez les 33 espèces actuelles, pour vérifier que nos données contiennent le signal attendu.
 
-2. **Modèle complet** (`archaea_simple.Rev`). Tout est estimé : `beta` (objectif 1) et la température de la racine (objectif 2).
-3. **Deux analyses de contrôle**, pour comprendre comment l'information sur le GC atteint la température :
-   - GC de la racine fixé à environ 85,9 % (`archaea_simpleRoot.Rev`) ;
-   - GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
+2. **Modèle complet** (`archaea_simple.Rev`). Tout est estimé : `beta` (objectif 1);
+3. **GC a la racine connu à environ 85,9 %** (`archaea_simpleRoot.Rev`), on estime la température de l'ancetre commun (objectif 2);
 
-Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Les 10 % premiers sont écartés (burn-in). Les résultats sont résumés par la moyenne a posteriori et l'intervalle de crédibilité à 95 %.
+4. **analyses contrôle**, pour comprendre que le modele utilise bien le couplage par le biais de beta et non seulement que le resultat trouvé n'est pas un artéfact:
+```
+GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
+
+```
+Chaque analyse MCMC tourne sur 100000 itérations (fichiers `analyses/*.log`).
 
 
 ## 6. Résultats
