@@ -1,6 +1,5 @@
 ################################################################
-# Modeling correlated evolution of rRNA GC content and OGT
-# in Archaea (based on Groussin & Gouy 2011)
+# Modélisation de l’évolution corrélée du contenu en GC de l’ARN ribosomique (ARNr) et de la température optimale de croissance (OGT) chez les Archées**  
 ################################################################
 
 # --------------------------------------------------
@@ -16,7 +15,7 @@ n_nodes    <- 2 * n_species - 1
 taxa <- data.taxa()
 
 # --------------------------------------------------
-# Fixed tree (topology AND branch lengths taken as given)
+# Arbre phylogenetique 
 # --------------------------------------------------
 
 tree <- readTrees("data/archaea.tree")[1]
@@ -31,14 +30,14 @@ tg_data <- readContinuousCharacterData("data/archaea_temp_gc.nex")
 moves = VectorMoves()
 
 # --------------------------------------------------
-# Brownian motion on log-temperature
+# Mouvement brownien sur le logarithme de la température
 # --------------------------------------------------
 
 sigma_T ~ dnExponential(1.0)
 moves.append(mvScale(sigma_T, weight=1.0))
 
 # --------------------------------------------------
-# Regression of GC on temperature change (correlated evolution)
+# Régression du contenu en GC en fonction des variations de température (évolution corrélée)
 # --------------------------------------------------
 
 beta ~ dnNormal(0.0, 10.0)
@@ -47,7 +46,7 @@ sigma_GC ~ dnExponential(1.0)
 moves.append(mvScale(sigma_GC, weight=1.0))
 
 # --------------------------------------------------
-# Root values
+# Valeurs a la racine 
 # --------------------------------------------------
 
 nodelogT[n_nodes] ~ dnNormal(mean=ln(75), sd=5)
@@ -64,7 +63,7 @@ rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer
 
 
 # --------------------------------------------------
-# Recursion from root to tips
+# Récursion de la racine vers les feuilles de l’arbre
 # --------------------------------------------------
 
 for (i in (n_nodes-1):1) {
@@ -96,7 +95,7 @@ for (i in (n_nodes-1):1) {
 
 
 # --------------------------------------------------
-# Clamp observed temperature AND GC content at the tips
+# Clamp sur les valeurs observées de la température ET du contenu en GC aux extrémités de l’arbre (espèces actuelles)
 # --------------------------------------------------
 
 for (i in 1:n_species) {
@@ -112,17 +111,6 @@ for (i in 1:n_species) {
 
 }
 
-
-# --------------------------------------------------
-# Root frequencies (derived from the root's GC content)
-# order: A, C, G, T
-# --------------------------------------------------
-
-freqA := Probability((1 - nodeGC[n_nodes]) / 2)
-freqC := Probability(nodeGC[n_nodes] / 2)
-freqG := Probability(nodeGC[n_nodes] / 2)
-freqT := Probability((1 - nodeGC[n_nodes]) / 2)
-rootFreq := simplex(freqA, freqC, freqG, freqT)
 
 # --------------------------------------------------
 # Model
