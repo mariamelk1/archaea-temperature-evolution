@@ -93,15 +93,18 @@ log T(i)    ~ Normale( log T(pa(i)),  sigma_T × √bl(i) )
  
 - **La taux de GC** :
 Il a été établir qu'un lien entre composition en GC et température existe : les structures secondaires de l’ARN riches en GC sont thermodynamiquement plus stables à haute température (littérature). Les données de Groussin & Gouy, 2011 le confirment, avec une corrélation de Pearson de r = 0,95 entre le GC% de l’ARNr et la température optimale de croissance.
-Pour alors estimer la force exacte de ce lien, nous avons effectué une regression linéaire de la temperature sur le taux GC par le biais de beta.
+Pour alors estimer la force exacte de ce lien, nous avons effectué une regression linéaire de la temperature sur le taux GC par le biais de beta qui est la pente de cette regression.
 Ainsi  :
+
 - beta > 0 : quand une lignée se réchauffe (log T augmente le long d’une branche), son GC% a tendance à augmenter en même temps.
 - beta < 0 : relation inverse — irait à l’encontre de la littérature.
 - beta ≈ 0 (intervalle de crédibilité à 95% contenant 0) : pas de preuve statistique de corrélation évolutive entre les deux caractères, une fois l’inertie phylogénétique prise en compte.
 ```
 logit GC(i) ~ Normale( logit GC(pa(i)) + beta × [log T(i) - log T(pa(i))],  sigma_GC × √bl(i) )
 ```
-```changement de GC ≈ beta × changement de température + variation propre au GC``
+```
+c'est a dire : changement de GC ≈ beta × changement de température + variation propre au GC
+```
 
 
 Aux extrémités de l'arbre, la température et le GC des espèces actuelles sont connus. À partir de ces observations, le modèle estime `beta` et les valeurs ancestrales, chacune avec son incertitude (distribution a posteriori).
@@ -126,7 +129,7 @@ Les analyses ont été menées dans cet ordre :
    - GC de la racine fixé à environ 85,9 % (`archaea_simpleRoot.Rev`) ;
    - GC de la racine fixé et `beta = 0`, c'est-à-dire sans lien entre GC et température (`archaea_GCRoot_β0.Rev`).
 
-Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Les 10 % premiers sont écartés (burn-in). Les résultats sont résumés par la moyenne a posteriori et l'intervalle de crédibilité à 95 % (quantiles 2,5 % et 97,5 %).
+Chaque analyse MCMC produit 10 001 échantillons (fichiers `analyses/*.log`). Les 10 % premiers sont écartés (burn-in). Les résultats sont résumés par la moyenne a posteriori et l'intervalle de crédibilité à 95 %.
 
 
 ## 6. Résultats
