@@ -1,5 +1,3 @@
-rootTemp := nodeT[n_nodes] # juste pour laffichage dans tracer 
-nodeLogitGC[n_nodes] ~ dnNormal(0, 10)
 moves.append(mvSlide(nodeLogitGC[n_nodes], weight=1.0, delta=0.1))
 nodeGC[n_nodes] := Probability(1 / (1 + exp(-nodeLogitGC[n_nodes])))
 rootGC := nodeGC[n_nodes] # juste pour laffichage dans tracer 
@@ -97,4 +95,6 @@ source("scripts/archaea_GCRoot_β0.Rev")
 q()
 source("scripts/archaea_simple.Rev")
 source("scripts/archaea_simpleRoot.Rev")
+q()
+source("scripts/archaea_simple.Rev")
 q()
